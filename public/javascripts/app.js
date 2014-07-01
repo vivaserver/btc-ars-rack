@@ -1,5 +1,10 @@
 var app = function() {
   var $buy, $sell, $updated_at;
+  var quoteBuy, quoteSell;
+
+  var cacheSave = function(data) {
+    localStorage["digicoins"] = JSON.stringify(data);
+  };
 
   var cached = function() {
     var cache = localStorage["digicoins"];
@@ -30,7 +35,7 @@ var app = function() {
           url: "https://digicoins.tk/ajax/get_prices",
           success: function(data) {
             if (data.result == "OK") {
-              localStorage["digicoins"] = JSON.stringify(data);
+              cacheSave(data);
               renderQuote($buy, data.btcusdask,data.btcarsask);
               renderQuote($sell,data.btcusdbid,data.btcarsbid);
               renderUpdateTime(data.quotestime)
@@ -52,7 +57,7 @@ var app = function() {
     init: function($el) {
       $buy  = $el.find("span#buy");
       $sell = $el.find("span#sell");
-      $updated_at = $("p#updated_at")
+      $updated_at = $el.find("p#updated_at")
     }
   }
 }();
