@@ -8,7 +8,7 @@ app = function() {
       $id.find(".usd").text(numeral(usd).format("0,0.00"));
       numeral.language("es");
       $id.find(".ars").text(numeral(ars).format("0,0.00"));
-      $id.find("span").text(numeral(blu).format("0,0.00"));
+      $id.find("span").text(numeral(blu).format("0,0.00")+" x USD");
     }
   }
 }();
