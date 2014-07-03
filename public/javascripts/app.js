@@ -3,11 +3,11 @@ var DigiCoins = function() {
 
   var cacheSave = function(data) {
     console.log(data);
-    localStorage["digicoins"] = JSON.stringify(data);
+    localStorage["DigiCoins.current"] = JSON.stringify(data);
   };
 
   var cached = function() {
-    var cache = localStorage["digicoins"];
+    var cache = localStorage["DigiCoins.current"];
     if (cache != undefined) {
       console.log(cache);
       return JSON.parse(cache);
