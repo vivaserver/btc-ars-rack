@@ -43,13 +43,13 @@ var app = function() {
   var $buy, $sell, $updated_at;
 
   var renderQuote = function($id, quote) {
-    var blu = quote.ars/quote.usd;
+    var time = moment(quote.time), blu = quote.ars/quote.usd;
     numeral.language("en");
     $id.find(".usd").text(numeral(quote.usd).format("0,0.00"));
     numeral.language("es");
     $id.find(".ars").text(numeral(quote.ars).format("0,0.00"));
     $id.find("span").text(numeral(blu).format("0,0.00")+" x USD");
-    $updated_at.text(quote.time)
+    $updated_at.text(time.format("l")+" ("+time.fromNow()+")");
   };
 
   return {
@@ -59,6 +59,7 @@ var app = function() {
       renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
     },
     init: function($el) {
+      moment.lang("es");
       $buy  = $el.find("span#buy");
       $sell = $el.find("span#sell");
       $updated_at = $el.find("p#updated_at")
