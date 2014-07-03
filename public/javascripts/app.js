@@ -1,10 +1,5 @@
 var app = function() {
   var $buy, $sell, $updated_at;
-  var Quote = function(usd, ars, time) {
-    this.usd  = usd;
-    this.ars  = ars;
-    this.time = time;
-  };
 
   var cacheSave = function(data) {
     console.log(data);
@@ -41,10 +36,8 @@ var app = function() {
           success: function(data) {
             if (data.result == "OK") {
               cacheSave(data);
-              quoteBuy  = new Quote(data.btcusdask,data.btcarsask,data.quotestime);
-              quoteSell = new Quote(data.btcusdbid,data.btcarsbid,data.quotestime);
-              renderQuote($buy, quoteBuy);
-              renderQuote($sell,quoteSell);
+              renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
+              renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
             }
           },
           error: function(xhr, type) {
@@ -54,10 +47,8 @@ var app = function() {
       }
       else {
         data = cached();
-        quoteBuy  = new Quote(data.btcusdask,data.btcarsask,data.quotestime);
-        quoteSell = new Quote(data.btcusdbid,data.btcarsbid,data.quotestime);
-        renderQuote($buy, quoteBuy);
-        renderQuote($sell,quoteSell);
+        renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
+        renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
       }
     },
     init: function($el) {
