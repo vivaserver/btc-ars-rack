@@ -1,5 +1,5 @@
-var app = function() {
-  var $buy, $sell, $updated_at;
+var DigiCoins = function() {
+  var previous, current;  // rates' history
 
   var cacheSave = function(data) {
     console.log(data);
@@ -14,6 +14,34 @@ var app = function() {
     }
   };
 
+  return {
+    getData: function() {
+      if (cached() == undefined) {
+        $.ajax({
+          dataType: "json",
+          type: "GET",
+          url: "https://digicoins.tk/ajax/get_prices",
+          success: function(data) {
+            if (data.result == "OK") {
+              cacheSave(data);
+              return data;
+            }
+          },
+          error: function(xhr, type) {
+            console.log(type);
+          }
+        });
+      }
+      else {
+        return cached();
+      }
+    }
+  }
+}();
+
+var app = function() {
+  var $buy, $sell, $updated_at;
+
   var renderQuote = function($id, quote) {
     var blu = quote.ars/quote.usd;
     numeral.language("en");
@@ -26,30 +54,9 @@ var app = function() {
 
   return {
     render: function() {
-      var quoteBuy, quoteSell;
-
-      if (cached() == undefined) {
-        $.ajax({
-          dataType: "json",
-          type: "GET",
-          url: "https://digicoins.tk/ajax/get_prices",
-          success: function(data) {
-            if (data.result == "OK") {
-              cacheSave(data);
-              renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
-              renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
-            }
-          },
-          error: function(xhr, type) {
-            console.log(type);
-          }
-        });
-      }
-      else {
-        data = cached();
-        renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
-        renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
-      }
+      data = DigiCoins.getData();
+      renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
+      renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
     },
     init: function($el) {
       $buy  = $el.find("span#buy");
