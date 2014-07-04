@@ -15,7 +15,10 @@ var DigiCoins = function() {
   };
 
   return {
-    getData: function() {
+    cache: function() {
+      return cached();
+    },
+    update: function($el) {
       if (cached() == undefined) {
         $.ajax({
           dataType: "json",
@@ -24,7 +27,7 @@ var DigiCoins = function() {
           success: function(data) {
             if (data.result == "OK") {
               cacheSave(data);
-              return data;
+              $el.trigger("data:change",cached());
             }
           },
           error: function(xhr, type) {
@@ -32,15 +35,20 @@ var DigiCoins = function() {
           }
         });
       }
-      else {
-        return cached();
-      }
     }
   }
 }();
 
 var app = function() {
-  var $buy, $sell, $updated_at;
+  var $buy, $sell, $time;
+
+  var render = function() {
+    var data = DigiCoins.cache();  // TODO: read from fs on first boot and update when online from there
+    if (data) {
+      renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
+      renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
+    }
+  };
 
   var renderQuote = function($id, quote) {
     var time = moment(quote.time), blu = quote.ars/quote.usd;
@@ -49,25 +57,29 @@ var app = function() {
     numeral.language("es");
     $id.find(".ars").text(numeral(quote.ars).format("0,0.00"));
     $id.find("span").text(numeral(blu).format("0,0.00")+" x USD");
-    $updated_at.text(time.format("l")+" ("+time.fromNow()+")");
+    $time.text(time.format("l")+" ("+time.fromNow()+")");  // "30/6/214 (hace 3 días)"
+  };
+
+  var setEvents = function($el) {
+    $el.on("data:change",function(el,data) {  // NOTE: custom event
+      renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
+      renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
+    });
   };
 
   return {
-    render: function() {
-      data = DigiCoins.getData();
-      renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
-      renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
-    },
     init: function($el) {
       moment.lang("es");
       $buy  = $el.find("span#buy");
       $sell = $el.find("span#sell");
-      $updated_at = $el.find("p#updated_at")
+      $time = $el.find("p#time")
+      render();
+      setEvents($el);
+      DigiCoins.update($el);
     }
   }
 }();
 
 $(document).ready(function() {
   app.init($(".content"));
-  app.render();
 });
