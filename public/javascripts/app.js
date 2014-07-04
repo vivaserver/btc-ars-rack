@@ -2,14 +2,11 @@ var DigiCoins = function() {
   var previous = "DigiCoins.previous", current = "DigiCoins.current";  // rates' history
 
   var updateCache = function(data) {
+    console.log(data);
     if (localStorage[current]) {
       localStorage[previous] = localStorage[current];
     }
     localStorage[current] = JSON.stringify(data);
-  };
-
-  var isExpired = function() {
-    return (cached() == undefined);
   };
 
   var cached = function() {
@@ -17,6 +14,22 @@ var DigiCoins = function() {
     if (cache != undefined) {
       return JSON.parse(cache);
     }
+  };
+
+  var isExpired = function() {
+    var cache = cached();
+    if (cache == undefined) {
+      return true;
+    }
+    else {
+      return daysExpired(cache) > 1;
+    }
+  };
+
+  var daysExpired = function(cache) {
+    var ago  = moment(cache.quotestime).fromNow();  // "(hace 3 días)"
+    var days = /\d+ días/.exec(ago);
+    if (days) { return Number(days); }
   };
 
   return {
@@ -36,7 +49,7 @@ var DigiCoins = function() {
             }
           },
           error: function(xhr, type) {
-            console.log(type);
+            console.log(type);  // TODO
           }
         });
       }
