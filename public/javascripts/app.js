@@ -1,15 +1,20 @@
 var DigiCoins = function() {
-  var previous, current;  // rates' history
+  var previous = "DigiCoins.previous", current = "DigiCoins.current";  // rates' history
 
-  var cacheSave = function(data) {
-    console.log(data);
-    localStorage["DigiCoins.current"] = JSON.stringify(data);
+  var updateCache = function(data) {
+    if (localStorage[current]) {
+      localStorage[previous] = localStorage[current];
+    }
+    localStorage[current] = JSON.stringify(data);
+  };
+
+  var isExpired = function() {
+    return (cached() == undefined);
   };
 
   var cached = function() {
-    var cache = localStorage["DigiCoins.current"];
+    var cache = localStorage[current];
     if (cache != undefined) {
-      console.log(cache);
       return JSON.parse(cache);
     }
   };
@@ -19,14 +24,14 @@ var DigiCoins = function() {
       return cached();
     },
     update: function($el) {
-      if (cached() == undefined) {
+      if (isExpired()) {
         $.ajax({
           dataType: "json",
           type: "GET",
           url: "https://digicoins.tk/ajax/get_prices",
           success: function(data) {
             if (data.result == "OK") {
-              cacheSave(data);
+              updateCache(data);
               $el.trigger("data:change",cached());
             }
           },
