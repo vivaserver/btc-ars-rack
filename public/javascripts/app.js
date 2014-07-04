@@ -45,9 +45,13 @@ var app = function() {
   var render = function() {
     var data = DigiCoins.cache();  // TODO: read from fs on first boot and update when online from there
     if (data) {
-      renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
-      renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
+      renderQuotes(data);  // mind some sensible HTML for empty data
     }
+  };
+
+  var renderQuotes = function(data) {
+    renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
+    renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
   };
 
   var renderQuote = function($id, quote) {
@@ -62,8 +66,7 @@ var app = function() {
 
   var setEvents = function($el) {
     $el.on("data:change",function(el,data) {  // NOTE: custom event
-      renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
-      renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
+      renderQuotes(data);
     });
   };
 
