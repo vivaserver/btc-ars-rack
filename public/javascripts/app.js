@@ -28,8 +28,8 @@ var DigiCoins = function() {
 
   var daysExpired = function(cache) {
     var ago  = moment(cache.quotestime).fromNow();  // "(hace 3 días)"
-    var days = /\d+ días/.exec(ago);
-    if (days) { return Number(days); }
+    var days = /(\d+) días/.exec(ago);
+    if (days) { return Number(days[1]); }
   };
 
   return {
