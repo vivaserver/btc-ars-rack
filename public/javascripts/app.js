@@ -11,14 +11,14 @@ var DigiCoins = function() {
 
   var cached = function() {
     var cache = localStorage[current];
-    if (cache != undefined) {
+    if (cache !== undefined) {
       return JSON.parse(cache);
     }
   };
 
   var isExpired = function() {
     var cache = cached();
-    if (cache == undefined) {
+    if (cache === undefined) {
       return true;
     }
     else {
@@ -27,13 +27,12 @@ var DigiCoins = function() {
   };
 
   var expiredLapse = function(cache) {  // ref. http://stackoverflow.com/a/18624295
-    var then = moment(cache.quotestime);
-    var now  = moment();
-    var ms = moment(now,"DD/MM/YYYY HH:mm:ss").diff(moment(then,"DD/MM/YYYY HH:mm:ss"));
-    var d = moment.duration(ms);
-    var s = Math.floor(d.asHours()) + moment.utc(ms).format(":mm:ss");  // "48:39:30"
-    console.log(s);
-    return s;
+    var then  = moment(cache.quotestime), now = moment();
+    var diff  = moment(now,"DD/MM/YYYY HH:mm:ss").diff(moment(then,"DD/MM/YYYY HH:mm:ss"));
+    var dure  = moment.duration(diff);
+    var enlap = Math.floor(dure.asHours()) + moment.utc(diff).format(":mm:ss");  // "48:39:30"
+    console.log(enlap);
+    return enlap;
   };
 
   return {
@@ -58,7 +57,7 @@ var DigiCoins = function() {
         });
       }
     }
-  }
+  };
 }();
 
 var app = function() {
@@ -97,12 +96,12 @@ var app = function() {
       moment.lang("es");
       $buy  = $el.find("span#buy");
       $sell = $el.find("span#sell");
-      $time = $el.find("p#time")
+      $time = $el.find("p#time");
       render();
       setEvents($el);
       DigiCoins.update($el);
     }
-  }
+  };
 }();
 
 $(document).ready(function() {
