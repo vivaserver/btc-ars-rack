@@ -22,14 +22,18 @@ var DigiCoins = function() {
       return true;
     }
     else {
-      return daysExpired(cache) > 1;
+      return expiredLapse(cache) > "60:00:00";
     }
   };
 
-  var daysExpired = function(cache) {
-    var ago  = moment(cache.quotestime).fromNow();  // "(hace 3 días)"
-    var days = /(\d+) días/.exec(ago);
-    if (days) { return Number(days[1]); }
+  var expiredLapse = function(cache) {  // ref. http://stackoverflow.com/a/18624295
+    var then = moment(cache.quotestime);
+    var now  = moment();
+    var ms = moment(now,"DD/MM/YYYY HH:mm:ss").diff(moment(then,"DD/MM/YYYY HH:mm:ss"));
+    var d = moment.duration(ms);
+    var s = Math.floor(d.asHours()) + moment.utc(ms).format(":mm:ss");  // "48:39:30"
+    console.log(s);
+    return s;
   };
 
   return {
@@ -68,8 +72,8 @@ var app = function() {
   };
 
   var renderQuotes = function(data) {
-    renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.quotestime});
-    renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
+    renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.pricestime});
+    renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.pricestime});
   };
 
   var renderQuote = function($id, quote) {
