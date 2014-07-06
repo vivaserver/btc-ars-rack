@@ -92,6 +92,7 @@ var app = function() {
   };
 
   var renderDelta = function($id, quote, prev) {
+    $id.removeClass("badge-negative").removeClass("badge-positive");
     switch (true) {  // ref. http://stackoverflow.com/a/21808629
       case (prev > quote):
         $id.addClass("badge-negative").show().text(toString(prev-quote)+"↓");
@@ -100,7 +101,7 @@ var app = function() {
         $id.addClass("badge-positive").show().text(toString(quote-prev)+"↑");
       break;
       default:
-        $id.removeClass("badge-negative").removeClass("badge-positive").show().text("=");
+        $id.show().text("=");
       break;
     }
   };
