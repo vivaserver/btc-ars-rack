@@ -47,7 +47,7 @@ var DigiCoins = function() {
           success: function(data) {
             if (data.result == "OK") {
               updateCache(data);
-              $el.trigger("data:change",cached());
+              $el.trigger("data:change",cached());  // NOTE: plain obj. as argument to event handler; same as jQuery?
             }
           },
           error: function(xhr, type) {
