@@ -9,8 +9,8 @@ var DigiCoins = function() {
     localStorage["current.time"] = new Date().toJSON();
   };
 
-  var cached = function(key="current") {
-    var cache = localStorage[key+".data"];
+  var cached = function(key) {
+    var cache = localStorage[(key || "current")+".data"];
     if (cache !== undefined) {
       return JSON.parse(cache);
     }
@@ -35,8 +35,8 @@ var DigiCoins = function() {
   };
 
   return {
-    cache: function(key="current") {
-      return cached(key);
+    cache: function(key) {
+      return cached(key || "current");
     },
     update: function($el) {
       if (isExpired()) {
