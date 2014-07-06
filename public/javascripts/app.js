@@ -1,3 +1,8 @@
+//! version : 0.0.0
+//! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
+//! license : MIT
+//! digicoins.enmicelu.com
+
 var DigiCoins = function() {
   var updateCache = function(data) {
     console.log(data);
@@ -22,7 +27,7 @@ var DigiCoins = function() {
       return true;
     }
     else {
-      return lapseExpired(cache) > 30;  // in minutes
+      return lapseExpired(cache) > 29;  // in minutes
     }
   };
 
@@ -82,7 +87,7 @@ var app = function() {
   };
 
   var toString = function(value) {
-    return numeral(value).format("0,0.00");  // format according to .language()
+    return numeral(value).format("0,0.00");  // format according to numeral.language()
   };
 
   var renderDelta = function($id, quote, prev) {
@@ -132,7 +137,9 @@ var app = function() {
       $time = $el.find("p#time");
       render();
       setEvents($el);
-      DigiCoins.update($el);
+      setInterval(function() {
+        DigiCoins.update($el);
+      },30*60*1000);  // 30' in miliseconds
     }
   };
 }();
