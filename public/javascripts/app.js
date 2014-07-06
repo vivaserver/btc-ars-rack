@@ -99,7 +99,7 @@ var app = function() {
         $id.addClass("badge-positive").show().text(toString(quote-prev)+"↑");
       break;
       default:
-        $id.show().text("=");
+        $id.removeClass("badge-negative").removeClass("badge-positive").show().text("=");
       break;
     }
   };
