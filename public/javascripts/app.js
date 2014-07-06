@@ -100,7 +100,7 @@ var app = function() {
   };
 
   var renderQuote = function($id, quote, prev) {
-    var time = moment(quote.time), blu = quote.ars/quote.usd;
+    var time = moment(localStorage["current.time"]), blu = quote.ars/quote.usd;
     // USD
     numeral.language("en");
     $id.find(".usd").text(toString(quote.usd));
