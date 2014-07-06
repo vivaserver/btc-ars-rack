@@ -1,16 +1,16 @@
 var DigiCoins = function() {
-  var previous = "DigiCoins.previous", current = "DigiCoins.current";  // rates' history
-
   var updateCache = function(data) {
     console.log(data);
-    if (localStorage[current]) {
-      localStorage[previous] = localStorage[current];
+    if (localStorage["current.data"]) {
+      localStorage["previous.data"] = localStorage["current.data"];
+      localStorage["previous.time"] = localStorage["current.time"];
     }
-    localStorage[current] = JSON.stringify(data);
+    localStorage["current.data"] = JSON.stringify(data);
+    localStorage["current.time"] = new Date().toJSON();
   };
 
   var cached = function() {
-    var cache = localStorage[current];
+    var cache = localStorage["current.data"];
     if (cache !== undefined) {
       return JSON.parse(cache);
     }
@@ -22,17 +22,16 @@ var DigiCoins = function() {
       return true;
     }
     else {
-      return expiredLapse(cache) > "60:00:00";
+      return lapseExpired(cache) > 30;  // in minutes
     }
   };
 
-  var expiredLapse = function(cache) {  // ref. http://stackoverflow.com/a/18624295
-    var then  = moment(cache.quotestime), now = moment();
-    var diff  = moment(now,"DD/MM/YYYY HH:mm:ss").diff(moment(then,"DD/MM/YYYY HH:mm:ss"));
-    var dure  = moment.duration(diff);
-    var enlap = Math.floor(dure.asHours()) + moment.utc(diff).format(":mm:ss");  // "48:39:30"
-    console.log(enlap);
-    return enlap;
+  var lapseExpired = function(cache) {
+    var then  = moment(localStorage["current.time"]), now = moment();
+    var diff  = moment(now).diff(moment(then));
+    var lapse = moment.duration(diff).asMinutes();
+    console.log(lapse);
+    return lapse;
   };
 
   return {
@@ -71,8 +70,8 @@ var app = function() {
   };
 
   var renderQuotes = function(data) {
-    renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.pricestime});
-    renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.pricestime});
+    renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.qoutestime});
+    renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
   };
 
   var renderQuote = function($id, quote) {
