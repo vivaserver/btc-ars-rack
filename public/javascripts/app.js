@@ -9,8 +9,8 @@ var DigiCoins = function() {
     localStorage["current.time"] = new Date().toJSON();
   };
 
-  var cached = function() {
-    var cache = localStorage["current.data"];
+  var cached = function(key="current") {
+    var cache = localStorage[key+".data"];
     if (cache !== undefined) {
       return JSON.parse(cache);
     }
@@ -35,8 +35,8 @@ var DigiCoins = function() {
   };
 
   return {
-    cache: function() {
-      return cached();
+    cache: function(key="current") {
+      return cached(key);
     },
     update: function($el) {
       if (isExpired()) {
@@ -70,17 +70,51 @@ var app = function() {
   };
 
   var renderQuotes = function(data) {
-    renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.qoutestime});
-    renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime});
+    var previous = DigiCoins.cache("previous"), prev = {buy: {}, sell: {}};
+    if (previous) {
+      prev.buy.usd  = previous.btcusdask;
+      prev.buy.ars  = previous.btcarsask;
+      prev.sell.usd = previous.btcusdbid;
+      prev.sell.ars = previous.btcarsbid;
+    }
+    renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.qoutestime}, prev.buy);
+    renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime}, prev.sell);
   };
 
-  var renderQuote = function($id, quote) {
+  var toString = function(value) {
+    return numeral(value).format("0,0.00");  // format according to .language()
+  };
+
+  var renderDelta = function($id, quote, prev) {
+    switch (true) {  // ref. http://stackoverflow.com/a/21808629
+      case (prev > quote):
+        $id.addClass("badge-negative").show().text(toString(prev-quote)+"↓");
+      break;
+      case (prev < quote):
+        $id.addClass("badge-positive").show().text(toString(quote-prev)+"↑");
+      break;
+      default:
+        $id.show().text("=");
+      break;
+    }
+  };
+
+  var renderQuote = function($id, quote, prev) {
     var time = moment(quote.time), blu = quote.ars/quote.usd;
+    // USD
     numeral.language("en");
-    $id.find(".usd").text(numeral(quote.usd).format("0,0.00"));
+    $id.find(".usd").text(toString(quote.usd));
+    if (prev.usd) {
+      renderDelta($id.find(".delta-usd"),quote.usd,prev.usd);
+    }
+    // ARS
     numeral.language("es");
-    $id.find(".ars").text(numeral(quote.ars).format("0,0.00"));
-    $id.find("span").text(numeral(blu).format("0,0.00")+" x USD");
+    $id.find(".ars").text(toString(quote.ars));
+    $id.find("span.blu").text(toString(blu)+" x USD");
+    if (prev.ars) {
+      renderDelta($id.find(".delta-ars"),quote.ars,prev.ars);
+    }
+    //
     $time.text(time.format("l")+" ("+time.fromNow()+")");  // "30/6/214 (hace 3 días)"
   };
 
