@@ -3,6 +3,8 @@
 //! license : MIT
 //! digicoins.enmicelu.com
 
+var DigiCoins = DigiCoins || {};
+
 var DigiCoins = function() {
   var updateCache = function(data) {
     console.log(data);
@@ -39,7 +41,7 @@ var DigiCoins = function() {
     return lapse;
   };
 
-  return {
+  return $.extend(DigiCoins, {
     cache: function(key) {
       return cached(key || "current");
     },
@@ -56,23 +58,26 @@ var DigiCoins = function() {
             }
           },
           error: function(xhr, type) {
-            console.log(type);
+            console.log(type);  // "abort"
             $el.trigger("data:error");
           }
         });
       }
     }
-  };
+  });
 }();
 
 var app = function() {
   var $buy, $sell, $time;
 
-  var render = function() {
-    var data = DigiCoins.cache();  // TODO: read from fs on first boot and update when online from there
-    if (data) {
-      renderQuotes(data);  // mind some sensible HTML for empty data
+  var boot = function() {
+    var data = DigiCoins.cache();
+    if (data === undefined) {  // use hard-coded cache data to boot from
+      localStorage["current.data"] = DigiCoins.boot_cache["current.data"];
+      localStorage["current.time"] = DigiCoins.boot_cache["current.time"];
+      data = DigiCoins.cache();
     }
+    renderQuotes(data);  // mind some sensible HTML for empty data
   };
 
   var renderQuotes = function(data) {
@@ -133,6 +138,9 @@ var app = function() {
     $el.on("data:error",function(el,data) {
       $time.addClass("error");
     });
+    setInterval(function() {
+      DigiCoins.update($el);
+    },30*60*1000);  // 30' in miliseconds
   };
 
   return {
@@ -141,11 +149,9 @@ var app = function() {
       $buy  = $el.find("span#buy");
       $sell = $el.find("span#sell");
       $time = $el.find("p#time");
-      render();
       setEvents($el);
-      setInterval(function() {
-        DigiCoins.update($el);
-      },30*60*1000);  // 30' in miliseconds
+      boot();
+      DigiCoins.update($el);
     }
   };
 }();
