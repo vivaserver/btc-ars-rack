@@ -56,7 +56,8 @@ var DigiCoins = function() {
             }
           },
           error: function(xhr, type) {
-            console.log(type);  // TODO
+            console.log(type);
+            $el.trigger("data:error");
           }
         });
       }
@@ -123,9 +124,13 @@ var app = function() {
     $time.text(time.format("l")+" ("+time.fromNow()+")");  // "30/6/214 (hace 3 días)"
   };
 
-  var setEvents = function($el) {
-    $el.on("data:change",function(el,data) {  // NOTE: custom event
+  var setEvents = function($el) {  // custom events
+    $el.on("data:change",function(el,data) {
+      $time.removeClass("error");
       renderQuotes(data);
+    });
+    $el.on("data:error",function(el,data) {
+      $time.addClass("error");
     });
   };
 

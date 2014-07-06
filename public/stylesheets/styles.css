@@ -11,6 +11,10 @@
   text-align: center;
 }
 
+.error {
+  color: #d9534f;
+}
+
 .hide {
   display: none;
 }
