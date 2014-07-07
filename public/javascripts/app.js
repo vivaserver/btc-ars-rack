@@ -3,8 +3,6 @@
 //! license : MIT
 //! digicoins.enmicelu.com
 
-var DigiCoins = DigiCoins || {};
-
 var DigiCoins = function() {
   var updateCache = function(data) {
     console.log(data);
@@ -41,7 +39,7 @@ var DigiCoins = function() {
     return lapse;
   };
 
-  return $.extend(DigiCoins, {
+  return $.extend(DigiCoins || {}, {  // use DigiCoins obj. to inject more props.
     cache: function(key) {
       return cached(key || "current");
     },
