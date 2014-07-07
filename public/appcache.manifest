@@ -14,6 +14,3 @@ CACHE MANIFEST
 /javascripts/app.js
 /stylesheets/ratchet.min.css
 /stylesheets/styles.css
-
-NETWORK:
-*
