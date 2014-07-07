@@ -4,6 +4,10 @@ require 'rubygems'
 require 'bundler'
 Bundler.require
 
+configure do
+  Rack::Mime::MIME_TYPES[".manifest"] = "text/cache-manifest"
+end
+
 use Rack::Static, urls: ['/fonts','/javascripts','/stylesheets'], root: 'public'
 
 page = Slim::Template.new('./public/index.slim',{pretty: true}).render
