@@ -27,7 +27,7 @@ var DigiCoins = function() {
       return true;
     }
     else {
-      return lapseExpired(cache) > 29;  // in minutes
+      return lapseExpired(cache) > 14;  // in minutes
     }
   };
 
@@ -138,7 +138,7 @@ var app = function() {
     });
     setInterval(function() {
       DigiCoins.update($el);
-    },30*60*1000);  // 30' in miliseconds
+    },15*60*1000);  // 15' in miliseconds
   };
 
   return {
