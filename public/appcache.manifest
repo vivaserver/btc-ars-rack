@@ -1,0 +1,19 @@
+CACHE MANIFEST
+# v0.0.0
+/favicon.ico
+/fonts/ratchicons.eot
+/fonts/ratchicons.svg
+/fonts/ratchicons.ttf
+/fonts/ratchicons.woff
+/javascripts/lib/ratchet.min.js
+/javascripts/lib/zepto.min.js
+/javascripts/lib/moment-with-langs.min.js
+/javascripts/lib/numeral.min.js
+/javascripts/lib/numeral.es.js
+/javascripts/cache.js
+/javascripts/app.js
+/stylesheets/ratchet.min.css
+/stylesheets/styles.css
+
+NETWORK:
+*
