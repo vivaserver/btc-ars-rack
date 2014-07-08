@@ -39,7 +39,7 @@ var DigiCoins = function() {
     return lapse;
   };
 
-  return $.extend(DigiCoins || {}, {  // use DigiCoins obj. to inject more props.
+  return $.extend(DigiCoins || {}, {  // use prev. DigiCoins obj. to inject more props.
     cache: function(key) {
       return cached(key || "current");
     },
