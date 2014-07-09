@@ -14,6 +14,24 @@ var DigiCoins = function() {
     localStorage["current.time"] = new Date().toJSON();
   };
 
+  var updateFrom = function(uri) {
+    $.ajax({
+      dataType: "json",
+      type: "GET",
+      url: uri, 
+      success: function(data) {
+        if (data.result == "OK") {
+          updateCache(data);
+          $el.trigger("data:change",data);  // NOTE: plain obj. as argument to event handler; same as jQuery?
+        }
+      },
+      error: function(xhr, type) {
+        console.log(type);  // "abort"
+        $el.trigger("data:error");
+      }
+    });
+  };
+
   var cached = function(key) {
     var cache = localStorage[(key || "current")+".data"];
     if (cache !== undefined) {
@@ -45,21 +63,7 @@ var DigiCoins = function() {
     },
     update: function($el) {
       if (isExpired()) {
-        $.ajax({
-          dataType: "json",
-          type: "GET",
-          url: "https://digicoins.tk/ajax/get_prices",
-          success: function(data) {
-            if (data.result == "OK") {
-              updateCache(data);
-              $el.trigger("data:change",cached());  // NOTE: plain obj. as argument to event handler; same as jQuery?
-            }
-          },
-          error: function(xhr, type) {
-            console.log(type);  // "abort"
-            $el.trigger("data:error");
-          }
-        });
+        updateFrom("https://digicoins.tk/ajax/get_prices");
       }
     }
   });
