@@ -6,7 +6,7 @@ Bundler.require
 # ref. https://github.com/adamwiggins/cachemanifest/blob/master/main.rb
 Rack::Mime::MIME_TYPES[".manifest"] = "text/cache-manifest"
 
-use Rack::Static, urls: ['/fonts','/javascripts','/stylesheets'], root: 'public'
+use Rack::Static, urls: ['/fonts','/javascripts','/static','/stylesheets'], root: 'public'
 
 page = Slim::Template.new('./public/index.slim',{pretty: true}).render
 run lambda { |env| [
