@@ -4,6 +4,8 @@
 //! digicoins.enmicelu.com
 
 var DigiCoins = function() {
+  var $el;
+
   var updateCache = function(data) {
     console.log(data);
     if (localStorage["current.data"]) {
@@ -11,10 +13,18 @@ var DigiCoins = function() {
       localStorage["previous.time"] = localStorage["current.time"];
     }
     localStorage["current.data"] = JSON.stringify(data);
-    localStorage["current.time"] = new Date().toJSON();
   };
 
-  var updateFrom = function(uri) {
+  var timeStamp = function(data, same_time) {  // always like "2014-07-09T17:13:34.553Z"
+    if (same_time === true) {
+      return data.pricestime.replace(" ","T").substr(0,23)+"Z";
+    }
+    else {
+      return new Date().toJSON();
+    }
+  };
+
+  var updateFrom = function(uri, same_time) {
     $.ajax({
       dataType: "json",
       type: "GET",
@@ -22,6 +32,7 @@ var DigiCoins = function() {
       success: function(data) {
         if (data.result == "OK") {
           updateCache(data);
+          localStorage["current.time"] = timeStamp(data,same_time);
           $el.trigger("data:change",data);  // NOTE: plain obj. as argument to event handler; same as jQuery?
         }
       },
@@ -33,8 +44,13 @@ var DigiCoins = function() {
   };
 
   var cached = function(key) {
-    var cache = localStorage[(key || "current")+".data"];
-    if (cache !== undefined) {
+    var cache = localStorage[key+".data"];
+    if (cache === undefined) {
+      if (key == "current") {                        // no current cache, fallback to static cache
+        updateFrom("/javascripts/cache.json",true);  // use cache timestamp
+      }
+    }
+    else {
       return JSON.parse(cache);
     }
   };
@@ -57,16 +73,19 @@ var DigiCoins = function() {
     return lapse;
   };
 
-  return $.extend(DigiCoins || {}, {  // use prev. DigiCoins obj. to inject more props.
+  return {
+    init: function($elem) {
+      $el = $elem;
+    },
     cache: function(key) {
       return cached(key || "current");
     },
-    update: function($el) {
+    update: function() {
       if (isExpired()) {
         updateFrom("https://digicoins.tk/ajax/get_prices");
       }
     }
-  });
+  };
 }();
 
 var app = function() {
@@ -74,12 +93,10 @@ var app = function() {
 
   var boot = function() {
     var data = DigiCoins.cache();
-    if (data === undefined) {  // use hard-coded cache data to boot from
-      localStorage["current.data"] = DigiCoins.boot_cache["current.data"];
-      localStorage["current.time"] = DigiCoins.boot_cache["current.time"];
-      data = DigiCoins.cache();
+    if (data) {
+      renderQuotes(data);  // mind some sensible HTML for empty data
     }
-    renderQuotes(data);  // mind some sensible HTML for empty data
+    DigiCoins.update();
   };
 
   var renderQuotes = function(data) {
@@ -90,8 +107,10 @@ var app = function() {
       prev.sell.usd = previous.btcusdbid;
       prev.sell.ars = previous.btcarsbid;
     }
-    renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.qoutestime}, prev.buy);
-    renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime}, prev.sell);
+    if (data) {
+      renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.qoutestime}, prev.buy);
+      renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime}, prev.sell);
+    }
   };
 
   var toString = function(value) {
@@ -141,8 +160,10 @@ var app = function() {
       $time.addClass("error");
     });
     setInterval(function() {
-      DigiCoins.update($el);
+      DigiCoins.update();
     },15*60*1000);  // 15' in miliseconds
+    // $el trigger on update() callbacks
+    DigiCoins.init($el);
   };
 
   return {
@@ -153,7 +174,6 @@ var app = function() {
       $time = $el.find("p#time");
       setEvents($el);
       boot();
-      DigiCoins.update($el);
     }
   };
 }();
