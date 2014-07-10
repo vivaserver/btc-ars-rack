@@ -1,4 +1,4 @@
-//! version : 0.0.1
+//! version : 0.0.2
 //! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
 //! license : MIT
 //! digicoins.enmicelu.com
