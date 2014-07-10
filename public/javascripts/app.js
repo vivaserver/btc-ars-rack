@@ -4,7 +4,7 @@
 //! digicoins.enmicelu.com
 
 var app = function() {
-  var $el;
+  var $el, cache_timeout = 10;  // in minutes
 
   var DigiCoins = function() {
     var updateCache = function(data) {
@@ -62,7 +62,7 @@ var app = function() {
         return true;
       }
       else {
-        return lapseExpired(cache) > 14;  // in minutes
+        return lapseExpired(cache) > cache_timeout-1;
       }
     };
 
@@ -177,7 +177,7 @@ var app = function() {
       });
       setInterval(function() {
         DigiCoins.update();
-      },15*60*1000);  // 15' in miliseconds
+      },cache_timeout*60*1000);  // cache_timeout in miliseconds
 
       Home.init($el);
 
