@@ -6,7 +6,8 @@ Bundler.require
 # ref. https://github.com/adamwiggins/cachemanifest/blob/master/main.rb
 Rack::Mime::MIME_TYPES[".manifest"] = "text/cache-manifest"
 
-use Rack::MobileDetect, redirect_desktop_to: 'https://digicoins.tk'
+# disable for now:
+# use Rack::MobileDetect, redirect_desktop_to: 'https://digicoins.tk'
 
 use Rack::Static, urls: ['/fonts','/javascripts','/static','/stylesheets'], root: 'public'
 
