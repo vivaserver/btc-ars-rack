@@ -1,5 +1,7 @@
 CACHE MANIFEST
-# v0.0.2 10/07/14
+# v0.0.2 12/07/14
+
+CACHE:
 /static/favicon.ico
 /fonts/ratchicons.eot
 /fonts/ratchicons.svg
@@ -14,3 +16,6 @@ CACHE MANIFEST
 /javascripts/app.js
 /stylesheets/ratchet.min.css
 /stylesheets/styles.css
+
+NETWORK:
+https://digicoins.tk
