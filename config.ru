@@ -4,7 +4,7 @@ require 'bundler'
 Bundler.require
 
 # ref. https://github.com/adamwiggins/cachemanifest/blob/master/main.rb
-Rack::Mime::MIME_TYPES[".manifest"] = "text/cache-manifest"
+Rack::Mime::MIME_TYPES[".appcache"] = "text/cache-manifest"
 
 if ENV['RACK_ENV'] == 'production'
   use Rack::MobileDetect, redirect_desktop_to: 'https://digicoins.tk'

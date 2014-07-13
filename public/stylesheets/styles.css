@@ -10,6 +10,15 @@
 .content p {
   text-align: center;
 }
+.content p.digicoins {
+  margin-top: 1.5em;
+  text-align: center;
+}
+.content p.digicoins a {
+  color: #f77000;
+  background: url(digicoins.png) no-repeat center left;
+  padding-left: 19px;
+}
 
 .error {
   color: #d9534f;
