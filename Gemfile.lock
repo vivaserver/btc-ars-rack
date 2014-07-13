@@ -1,9 +1,10 @@
 GIT
   remote: https://github.com/vivaserver/rack-mobile-detect.git
-  revision: 351412d46a5e8f281b615df8e1ec05e1b82ce3dc
+  revision: d115e529ea34a3c199cb761346d945dd2cf27c67
   specs:
-    rack-mobile-detect (0.4.0)
+    rack-mobile-detect (0.4.1)
       rack
+      rack-mobile-detect
 
 GEM
   remote: https://rubygems.org/
