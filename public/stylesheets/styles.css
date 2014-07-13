@@ -10,14 +10,12 @@
 .content p {
   text-align: center;
 }
-.content p.digicoins {
+.content .digicoins {
   margin-top: 1.5em;
   text-align: center;
 }
-.content p.digicoins a {
+.content a.digicoins {
   color: #f77000;
-  background: url(digicoins.png) no-repeat center left;
-  padding-left: 19px;
 }
 
 .error {
