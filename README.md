@@ -1,18 +1,17 @@
-# Ratchet 2.0.2 bootstrap
+# Bitcoin en Argentina
 
-![screenshot](https://raw.github.com/vivaserver/ratchet-bootstrap/master/screenshot.png)
+Built with the following components:
 
-A Ruby/Rack stack for bootstrapping a Ratchet mobile app.
-
-* [Ratchet][ratchet]
-* [Slim][slim] template
+* [Ratchet][rtch]
+* [numeral][nume]
+* [moment][mome]
+* [zepto][zpto]
 
 ## Bootstrap
 
     $ bundle install --path=vendor
     ...
     $ bundle exec rackup
-
 
 ## License
 
@@ -22,5 +21,7 @@ MIT
 
 (c)2014 Cristian R. Arroyo
 
-[ratchet]: http://goratchet.com
-[slim]:    http://slim-lang.com/
+[rtch]: http://goratchet.com
+[nume]: http://numeraljs.com
+[mome]: http://momentjs.com/
+[zpto]: http://zeptojs.com/
