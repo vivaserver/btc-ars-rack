@@ -8,7 +8,6 @@ var app = function() {
 
   var DigiCoins = function() {
     var updateCache = function(data) {
-      console.log(data);
       if (localStorage["current.data"]) {
         localStorage["previous.data"] = localStorage["current.data"];
         localStorage["previous.time"] = localStorage["current.time"];
@@ -70,7 +69,6 @@ var app = function() {
       var then  = moment(localStorage["current.time"]), now = moment();
       var diff  = moment(now).diff(moment(then));
       var lapse = moment.duration(diff).asMinutes();
-      console.log(lapse);
       return lapse;
     };
 

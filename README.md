@@ -13,6 +13,21 @@ Built with the following components:
     ...
     $ bundle exec rackup
 
+## Concept qoute data obj.
+
+    qoute = {
+      exchange: "digicoins",
+      buy: {
+        usd: 624.15,
+        ars: 7489.86
+      },
+      sell: {
+        usd: 592.63,
+        ars: 7080.77
+      },
+      created_at: "2014-07-13 17:44:23.0720"
+    }
+
 ## License
 
 MIT
