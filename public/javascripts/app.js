@@ -56,7 +56,7 @@ var app = function() {
     };
 
     var isExpired = function() {
-      var cache = cached();
+      var cache = cached("current");
       if (cache === undefined) {
         return true;
       }
