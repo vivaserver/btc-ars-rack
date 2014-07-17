@@ -61,11 +61,11 @@ var app = function() {
         return true;
       }
       else {
-        return lapseExpired(cache) > cache_timeout-1;
+        return lapseExpired() > cache_timeout-1;
       }
     };
 
-    var lapseExpired = function(cache) {
+    var lapseExpired = function() {
       var then  = moment(localStorage["current.time"]), now = moment();
       var diff  = moment(now).diff(moment(then));
       var lapse = moment.duration(diff).asMinutes();
