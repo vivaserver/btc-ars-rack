@@ -44,7 +44,7 @@ var app = function() {
         success: function(data) {
           if (data.result == "OK") {
             updateCache(data,use_data_time);
-            $el.trigger("data:change");  // NOTE: plain obj. as argument to event handler; same as jQuery?
+            $el.trigger("data:change");
           }
         },
         error: function(xhr, type) {
@@ -58,6 +58,7 @@ var app = function() {
       var cache = localStorage.getItem(key), use_data_time = true;
       if (cache === null || cache === undefined) {
         if (key == "current") {
+          localStorage.clear();
           // no current cache stored, fallback to static .json
           // and force update on expired bundled data time
           updateFrom("/javascripts/cache.json",use_data_time);
