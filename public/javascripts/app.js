@@ -1,4 +1,4 @@
-//! version : 0.0.2
+//! version : 0.0.3
 //! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
 //! license : MIT
 //! digicoins.enmicelu.com
@@ -7,33 +7,44 @@ var app = function() {
   var $el, cache_timeout = 10;  // in minutes
 
   var DigiCoins = function() {
-    var updateCache = function(data) {
-      if (localStorage["current.data"]) {
-        localStorage["previous.data"] = localStorage["current.data"];
-        localStorage["previous.time"] = localStorage["current.time"];
+    var updateCache = function(data, use_data_time) {
+      var qoute;
+      console.log(data);
+      if (localStorage.getItem("current")) {
+        localStorage.setItem("previous",localStorage.getItem("current"));
       }
-      localStorage["current.data"] = JSON.stringify(data);
+      quote = {
+        exchange: "digicoins",
+        buy: {
+          usd:  data.btcusdask,
+          ars:  data.btcarsask,
+          time: data.quotestime
+        },
+        sell: {
+          usd:  data.btcusdbid,
+          ars:  data.btcarsbid,
+          time: data.quotestime
+        },
+        created_at: timeStamp(data.pricestime,use_data_time)
+      };
+      localStorage.setItem("current",JSON.stringify(quote));
     };
 
-    var timeStamp = function(data, same_time) {  // always like "2014-07-09T17:13:34.553Z"
-      if (same_time === true) {
-        return data.pricestime.replace(" ","T").substr(0,23)+"Z";
-      }
-      else {
-        return new Date().toJSON();
-      }
+    var timeStamp = function(time, use_data_time) {  // always like "2014-07-09T17:13:34.553Z"
+      return (use_data_time === true) ? 
+        time.replace(" ","T").substr(0,23)+"Z" :
+        new Date().toJSON();
     };
 
-    var updateFrom = function(uri, same_time) {
+    var updateFrom = function(uri, use_data_time) {
       $.ajax({
         dataType: "json",
         type: "GET",
         url: uri, 
         success: function(data) {
           if (data.result == "OK") {
-            updateCache(data);
-            localStorage["current.time"] = timeStamp(data,same_time);
-            $el.trigger("data:change",data);  // NOTE: plain obj. as argument to event handler; same as jQuery?
+            updateCache(data,use_data_time);
+            $el.trigger("data:change");  // NOTE: plain obj. as argument to event handler; same as jQuery?
           }
         },
         error: function(xhr, type) {
@@ -43,11 +54,13 @@ var app = function() {
       });
     };
 
-    var cached = function(key) {
-      var cache = localStorage[key+".data"];
-      if (cache === undefined) {
-        if (key == "current") {                        // no current cache, fallback to static cache
-          updateFrom("/javascripts/cache.json",true);  // use cache timestamp
+    var cached = function(key) {  // should always get a key
+      var cache = localStorage.getItem(key), use_data_time = true;
+      if (cache === null || cache === undefined) {
+        if (key == "current") {
+          // no current cache stored, fallback to static .json
+          // and force update on expired bundled data time
+          updateFrom("/javascripts/cache.json",use_data_time);
         }
       }
       else {
@@ -57,16 +70,16 @@ var app = function() {
 
     var isExpired = function() {
       var cache = cached("current");
-      if (cache === undefined) {
+      if (cache === null || cache === undefined) {
         return true;
       }
       else {
-        return lapseExpired() > cache_timeout-1;
+        return lapseExpired(cache) > cache_timeout-1;
       }
     };
 
-    var lapseExpired = function() {
-      var then  = moment(localStorage["current.time"]), now = moment();
+    var lapseExpired = function(cache) {
+      var then  = moment(cache.created_at), now = moment();
       var diff  = moment(now).diff(moment(then));
       var lapse = moment.duration(diff).asMinutes();
       return lapse;
@@ -87,17 +100,15 @@ var app = function() {
   var Home = function() {
     var $buy, $sell, $time;
 
-    var renderQuotes = function(data) {
-      var previous = DigiCoins.cache("previous"), prev = {buy: {}, sell: {}};
+    var renderQuotes = function() {
+      var current = DigiCoins.cache(), previous = DigiCoins.cache("previous"), prev = {buy: {}, sell: {}};
       if (previous) {
-        prev.buy.usd  = previous.btcusdask;
-        prev.buy.ars  = previous.btcarsask;
-        prev.sell.usd = previous.btcusdbid;
-        prev.sell.ars = previous.btcarsbid;
+        prev.buy  = previous.buy;
+        prev.sell = previous.sell;
       }
-      if (data) {
-        renderQuote($buy, {usd: data.btcusdask, ars: data.btcarsask, time: data.qoutestime}, prev.buy);
-        renderQuote($sell,{usd: data.btcusdbid, ars: data.btcarsbid, time: data.quotestime}, prev.sell);
+      if (current) {
+        renderQuote($buy, current.buy,  prev.buy);
+        renderQuote($sell,current.sell, prev.sell);
       }
     };
 
@@ -153,8 +164,8 @@ var app = function() {
           $time.removeClass("error");
         }
       },
-      render: function(data) {
-        renderQuotes(data);
+      render: function() {
+        renderQuotes();
       }
     };
   }();
@@ -166,9 +177,9 @@ var app = function() {
       moment.lang("es");
 
       $el = $elem;
-      $el.on("data:change",function(el,data) {
+      $el.on("data:change",function(el) {
         Home.error(false);
-        Home.render(data);
+        Home.render();
       });
       $el.on("data:error",function(el,data) {
         Home.error(true);
@@ -181,7 +192,7 @@ var app = function() {
 
       data = DigiCoins.cache();
       if (data) {
-        Home.render(data);  // mind some sensible HTML for empty data
+        Home.render();  // mind some sensible HTML for empty data
       }
       DigiCoins.update();
     }

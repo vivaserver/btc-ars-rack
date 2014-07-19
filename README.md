@@ -15,7 +15,7 @@ Built with the following components:
 
 ## Concept qoute data obj.
 
-    qoute = {
+    quote = {
       exchange: "digicoins",
       buy: {
         usd: 624.15,
