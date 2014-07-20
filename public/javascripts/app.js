@@ -1,4 +1,4 @@
-//! version : 0.0.3
+//! version : 0.0.4
 //! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
 //! license : MIT
 //! digicoins.enmicelu.com
@@ -190,11 +190,7 @@ var app = function() {
       },cache_timeout*60*1000);  // cache_timeout in miliseconds
 
       Home.init($el);
-
-      data = DigiCoins.cache();
-      if (data) {
-        Home.render();  // mind some sensible HTML for empty data
-      }
+      // force first update
       DigiCoins.update();
     }
   };
