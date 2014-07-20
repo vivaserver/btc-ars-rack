@@ -3,6 +3,7 @@
 Built with the following components:
 
 * [Ratchet][rtch]
+* [localForage][fora]
 * [numeral][nume]
 * [moment][mome]
 * [zepto][zpto]
@@ -37,6 +38,7 @@ MIT
 (c)2014 Cristian R. Arroyo
 
 [rtch]: http://goratchet.com
+[fora]: http://mozilla.github.io/localForage/
 [nume]: http://numeraljs.com
 [mome]: http://momentjs.com/
 [zpto]: http://zeptojs.com/

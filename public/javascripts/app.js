@@ -72,7 +72,7 @@ var app = function() {
           }
         });
       },
-      updateFromLocalCache: function() {
+      updateFromLocal: function() {
         var use_data_time = true;
         updateFrom("/javascripts/cache.json",use_data_time);
       }
@@ -95,7 +95,7 @@ var app = function() {
           localStorage.clear();
           // no current cache stored, fallback to static .json
           // and force update on expired bundled data time
-          DigiCoins.updateFromLocalCache();
+          DigiCoins.updateFromLocal();
         }
         else {
           renderQuote($buy, cache.buy,  prev.buy);
