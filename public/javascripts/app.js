@@ -8,11 +8,13 @@ var app = function() {
 
   var DigiCoins = function() {
     var updateCache = function(data, use_data_time) {
-      var qoute;
+      var quote;
       console.log(data);
-      if (localStorage.getItem("current")) {
-        localStorage.setItem("previous",localStorage.getItem("current"));
-      }
+      localforage.getItem("current").then(function(value) {
+        if (value) {
+          localforage.setItem("previous",value);
+        }
+      });
       quote = {
         exchange: "digicoins",
         buy: {
@@ -27,7 +29,9 @@ var app = function() {
         },
         created_at: timeStamp(data.pricestime,use_data_time)
       };
-      localStorage.setItem("current",JSON.stringify(quote));
+      localforage.setItem("current",quote,function() {
+        $el.trigger("data:change");
+      });
     };
 
     var timeStamp = function(time, use_data_time) {  // always like "2014-07-09T17:13:34.553Z"
@@ -44,7 +48,6 @@ var app = function() {
         success: function(data) {
           if (data.result == "OK") {
             updateCache(data,use_data_time);
-            $el.trigger("data:change");
           }
         },
         error: function(xhr, type) {
@@ -52,31 +55,6 @@ var app = function() {
           $el.trigger("data:error");
         }
       });
-    };
-
-    var cached = function(key) {  // should always get a key
-      var cache = localStorage.getItem(key), use_data_time = true;
-      if (cache === null || cache === undefined) {
-        if (key == "current") {
-          localStorage.clear();
-          // no current cache stored, fallback to static .json
-          // and force update on expired bundled data time
-          updateFrom("/javascripts/cache.json",use_data_time);
-        }
-      }
-      else {
-        return JSON.parse(cache);
-      }
-    };
-
-    var isExpired = function() {
-      var cache = cached("current");
-      if (cache === null || cache === undefined) {
-        return true;
-      }
-      else {
-        return lapseExpired(cache) > cache_timeout-1;
-      }
     };
 
     var lapseExpired = function(cache) {
@@ -87,13 +65,16 @@ var app = function() {
     };
 
     return {
-      cache: function(key) {
-        return cached(key || "current");
-      },
       update: function() {
-        if (isExpired()) {
-          updateFrom("https://digicoins.tk/ajax/get_prices");
-        }
+        localforage.getItem("current").then(function(cache) {
+          if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
+            updateFrom("https://digicoins.tk/ajax/get_prices");
+          }
+        });
+      },
+      updateFromLocalCache: function() {
+        var use_data_time = true;
+        updateFrom("/javascripts/cache.json",use_data_time);
       }
     };
   }();
@@ -102,15 +83,25 @@ var app = function() {
     var $buy, $sell, $time;
 
     var renderQuotes = function() {
-      var current = DigiCoins.cache(), previous = DigiCoins.cache("previous"), prev = {buy: {}, sell: {}};
-      if (previous) {
-        prev.buy  = previous.buy;
-        prev.sell = previous.sell;
-      }
-      if (current) {
-        renderQuote($buy, current.buy,  prev.buy);
-        renderQuote($sell,current.sell, prev.sell);
-      }
+      var prev = {buy: {}, sell: {}};
+      localforage.getItem("previous").then(function(value) {
+        if (value) {
+          prev.buy  = value.buy;
+          prev.sell = value.sell;
+        }
+      });
+      localforage.getItem("current").then(function(cache) {
+        if (cache === null || cache === undefined) {
+          localStorage.clear();
+          // no current cache stored, fallback to static .json
+          // and force update on expired bundled data time
+          DigiCoins.updateFromLocalCache();
+        }
+        else {
+          renderQuote($buy, cache.buy,  prev.buy);
+          renderQuote($sell,cache.sell, prev.sell);
+        }
+      });
     };
 
     var toString = function(value) {
@@ -133,7 +124,7 @@ var app = function() {
     };
 
     var renderQuote = function($id, quote, prev) {
-      var time = moment(localStorage["current.time"]), blu = quote.ars/quote.usd;
+      var time = moment(quote.created_at), blu = quote.ars/quote.usd;
       // USD
       numeral.language("en");
       $id.find(".usd").text(toString(quote.usd));
@@ -147,8 +138,8 @@ var app = function() {
       if (prev.ars) {
         renderDelta($id.find(".delta-ars"),quote.ars,prev.ars);
       }
-      //
-      $time.text(time.format("l")+" ("+time.fromNow()+")");  // "30/6/214 (hace 3 días)"
+      // "30/6/214 (hace 3 días)"
+      $time.text(time.format("l")+" ("+time.fromNow()+")");
     };
 
     return {
@@ -173,8 +164,7 @@ var app = function() {
 
   return {
     init: function($elem) {
-      var data;
-
+      localforage.setDriver("localStorageWrapper");
       moment.lang("es");
 
       $el = $elem;
@@ -182,7 +172,7 @@ var app = function() {
         Home.error(false);
         Home.render();
       });
-      $el.on("data:error",function(el,data) {
+      $el.on("data:error",function(el) {
         Home.error(true);
       });
       setInterval(function() {
@@ -190,6 +180,8 @@ var app = function() {
       },cache_timeout*60*1000);  // cache_timeout in miliseconds
 
       Home.init($el);
+      // render from local cache JSON file
+      Home.render();
       // force first update
       DigiCoins.update();
     }
