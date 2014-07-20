@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# 20/07/14 13:47
+# 20/07/14 16:57
 
 CACHE:
 /static/favicon.ico
@@ -9,6 +9,7 @@ CACHE:
 /fonts/ratchicons.woff
 /javascripts/lib/ratchet.min.js
 /javascripts/lib/moment-with-langs.min.js
+/javascripts/lib/localforage.min.js
 /javascripts/lib/numeral.min.js
 /javascripts/lib/numeral.es.js
 /javascripts/lib/zepto.min.js
