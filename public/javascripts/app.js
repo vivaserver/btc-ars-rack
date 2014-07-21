@@ -8,29 +8,29 @@ var app = function() {
 
   var DigiCoins = function() {
     var updateCache = function(data, use_data_time) {
-      var quote;
       console.log(data);
-      localforage.getItem("current").then(function(value) {
-        if (value) {
-          localforage.setItem("previous",value);
+      localforage.getItem("current").then(function(cache) {
+        var quote;
+        if (cache !== null && cache !== undefined) {
+          localforage.setItem("previous",cache);
         }
-      });
-      quote = {
-        exchange: "digicoins",
-        buy: {
-          usd:  data.btcusdask,
-          ars:  data.btcarsask,
-          time: data.quotestime
-        },
-        sell: {
-          usd:  data.btcusdbid,
-          ars:  data.btcarsbid,
-          time: data.quotestime
-        },
-        created_at: timeStamp(data.pricestime,use_data_time)
-      };
-      localforage.setItem("current",quote,function() {
-        $el.trigger("data:change");
+        quote = {
+          exchange: "digicoins",
+          buy: {
+            usd:  data.btcusdask,
+            ars:  data.btcarsask,
+            time: data.quotestime
+          },
+          sell: {
+            usd:  data.btcusdbid,
+            ars:  data.btcarsbid,
+            time: data.quotestime
+          },
+          created_at: timeStamp(data.pricestime,use_data_time)
+        };
+        localforage.setItem("current",quote,function() {
+          $el.trigger("data:change");
+        });
       });
     };
 
@@ -83,24 +83,26 @@ var app = function() {
     var $buy, $sell, $time;
 
     var renderQuotes = function() {
-      var prev = {buy: {}, sell: {}};
-      localforage.getItem("previous").then(function(value) {
-        if (value) {
-          prev.buy  = value.buy;
-          prev.sell = value.sell;
+      localforage.getItem("previous").then(function(cache) {
+        var current = {buy: {}, sell: {}}, previous = {buy: {}, sell: {}};
+        if (cache !== null && cache !== undefined) {
+          previous.buy  = cache.buy;
+          previous.sell = cache.sell;
         }
-      });
-      localforage.getItem("current").then(function(cache) {
-        if (cache === null || cache === undefined) {
-          localStorage.clear();
-          // no current cache stored, fallback to static .json
-          // and force update on expired bundled data time
-          DigiCoins.updateFromLocal();
-        }
-        else {
-          renderQuote($buy, cache.buy,  prev.buy);
-          renderQuote($sell,cache.sell, prev.sell);
-        }
+        localforage.getItem("current").then(function(cache) {
+          if (cache !== null && cache !== undefined) {
+            current.buy  = cache.buy;
+            current.sell = cache.sell;
+            renderQuote($buy, current.buy,  previous.buy);
+            renderQuote($sell,current.sell, previous.sell);
+          }
+          else {
+            localStorage.clear();
+            // no current cache stored, fallback to static .json
+            // and force update on expired bundled data time
+            DigiCoins.updateFromLocal();
+          }
+        });
       });
     };
 
