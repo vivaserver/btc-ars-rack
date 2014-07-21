@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# 20/07/14 16:57
+# 21/07/14 10:37
 
 CACHE:
 /static/favicon.ico
@@ -13,7 +13,7 @@ CACHE:
 /javascripts/lib/numeral.min.js
 /javascripts/lib/numeral.es.js
 /javascripts/lib/zepto.min.js
-/javascripts/cache.js
+/javascripts/cache.json
 /javascripts/app.js
 /stylesheets/ratchet.min.css
 /stylesheets/styles.css
