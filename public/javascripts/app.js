@@ -1,4 +1,4 @@
-//! version : 0.1.0
+//! version : 0.1.1
 //! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
 //! license : MIT
 //! digicoins.enmicelu.com
@@ -9,7 +9,7 @@ var app = function() {
   var DigiCoins = function() {
     var updateCache = function(data, use_data_time) {
       console.log(data);
-      localforage.getItem("current").then(function(cache) {
+      localforage.getItem("current",function(cache) {
         var quote;
         if (cache !== null && cache !== undefined) {
           localforage.setItem("previous",cache);
@@ -66,7 +66,7 @@ var app = function() {
 
     return {
       update: function() {
-        localforage.getItem("current").then(function(cache) {
+        localforage.getItem("current",function(cache) {
           if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
             updateFrom("https://digicoins.tk/ajax/get_prices");
           }
@@ -83,13 +83,13 @@ var app = function() {
     var $buy, $sell, $time;
 
     var renderQuotes = function() {
-      localforage.getItem("previous").then(function(cache) {
+      localforage.getItem("previous",function(cache) {
         var current = {buy: {}, sell: {}}, previous = {buy: {}, sell: {}};
         if (cache !== null && cache !== undefined) {
           previous.buy  = cache.buy;
           previous.sell = cache.sell;
         }
-        localforage.getItem("current").then(function(cache) {
+        localforage.getItem("current",function(cache) {
           if (cache !== null && cache !== undefined) {
             current.buy  = cache.buy;
             current.sell = cache.sell;
