@@ -93,8 +93,8 @@ var app = function() {
           if (cache !== null && cache !== undefined) {
             current.buy  = cache.buy;
             current.sell = cache.sell;
-            renderQuote($buy, cache.created_at, current.buy,  previous.buy);
-            renderQuote($sell,cache.created_at, current.sell, previous.sell);
+            renderQuote($buy,  cache.created_at, current.buy,  previous.buy);
+            renderQuote($sell, cache.created_at, current.sell, previous.sell);
           }
           else {
             localStorage.clear();
@@ -110,14 +110,14 @@ var app = function() {
       return numeral(value).format("0,0.00");  // format according to numeral.language()
     };
 
-    var renderDelta = function($id, quote, prev) {
+    var renderDelta = function($id, current, previous) {
       $id.removeClass("badge-negative").removeClass("badge-positive");
       switch (true) {  // ref. http://stackoverflow.com/a/21808629
-        case (prev > quote):
-          $id.addClass("badge-negative").show().text(toString(prev-quote)+" ↓");
+        case (previous > current):
+          $id.addClass("badge-negative").show().text(toString(previous-current)+" ↓");
         break;
-        case (prev < quote):
-          $id.addClass("badge-positive").show().text(toString(quote-prev)+" ↑");
+        case (previous < current):
+          $id.addClass("badge-positive").show().text(toString(current-previous)+" ↑");
         break;
         default:
           $id.show().text("=");
@@ -125,20 +125,20 @@ var app = function() {
       }
     };
 
-    var renderQuote = function($id, created_at, quote, prev) {
-      var time = moment(created_at), blu = quote.ars/quote.usd;
+    var renderQuote = function($id, created_at, current, previous) {
+      var time = moment(created_at), blu = current.ars/current.usd;
       // USD
       numeral.language("en");
-      $id.find(".usd").text(toString(quote.usd));
-      if (prev.usd) {
-        renderDelta($id.find(".delta-usd"),quote.usd,prev.usd);
+      $id.find(".usd").text(toString(current.usd));
+      if (previous.usd) {
+        renderDelta($id.find(".delta-usd"),current.usd,previous.usd);
       }
       // ARS
       numeral.language("es");
-      $id.find(".ars").text(toString(quote.ars));
+      $id.find(".ars").text(toString(current.ars));
       $id.find("span.blu").text(toString(blu)+" x USD");
-      if (prev.ars) {
-        renderDelta($id.find(".delta-ars"),quote.ars,prev.ars);
+      if (previous.ars) {
+        renderDelta($id.find(".delta-ars"),current.ars,previous.ars);
       }
       // "30/6/214 (hace 3 días)"
       $time.text(time.format("l")+" ("+time.fromNow()+")");
