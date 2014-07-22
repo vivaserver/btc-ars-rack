@@ -1,4 +1,4 @@
-//! version : 0.1.1
+//! version : 0.1.2
 //! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
 //! license : MIT
 //! digicoins.enmicelu.com
@@ -93,8 +93,8 @@ var app = function() {
           if (cache !== null && cache !== undefined) {
             current.buy  = cache.buy;
             current.sell = cache.sell;
-            renderQuote($buy, current.buy,  previous.buy);
-            renderQuote($sell,current.sell, previous.sell);
+            renderQuote($buy, cache.created_at, current.buy,  previous.buy);
+            renderQuote($sell,cache.created_at, current.sell, previous.sell);
           }
           else {
             localStorage.clear();
@@ -125,8 +125,8 @@ var app = function() {
       }
     };
 
-    var renderQuote = function($id, quote, prev) {
-      var time = moment(quote.created_at), blu = quote.ars/quote.usd;
+    var renderQuote = function($id, created_at, quote, prev) {
+      var time = moment(created_at), blu = quote.ars/quote.usd;
       // USD
       numeral.language("en");
       $id.find(".usd").text(toString(quote.usd));
