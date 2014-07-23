@@ -126,19 +126,26 @@ var app = function() {
     };
 
     var renderQuote = function($id, created_at, current, previous) {
-      var time = moment(created_at), blu = current.ars/current.usd;
+      var time = moment(created_at), blu;
       // USD
-      numeral.language("en");
-      $id.find(".usd").text(toString(current.usd));
-      if (previous.usd) {
-        renderDelta($id.find(".delta-usd"),current.usd,previous.usd);
+      if (current.usd) {
+        numeral.language("en");
+        $id.find(".usd").text(toString(current.usd));
+        if (previous.usd) {
+          renderDelta($id.find(".delta-usd"),current.usd,previous.usd);
+        }
       }
       // ARS
-      numeral.language("es");
-      $id.find(".ars").text(toString(current.ars));
-      $id.find("span.blu").text(toString(blu)+" x USD");
-      if (previous.ars) {
-        renderDelta($id.find(".delta-ars"),current.ars,previous.ars);
+      if (current.ars) {
+        numeral.language("es");
+        $id.find(".ars").text(toString(current.ars));
+        if (previous.ars) {
+          renderDelta($id.find(".delta-ars"),current.ars,previous.ars);
+        }
+      }
+      if (current.ars && current.usd) {
+        blu = current.ars/current.usd;
+        $id.find("span.blu").text(toString(blu)+" x USD");
       }
       // "30/6/214 (hace 3 días)"
       $time.text(time.format("l")+" ("+time.fromNow()+")");
