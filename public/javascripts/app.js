@@ -148,6 +148,7 @@ var app = function() {
         $id.find("span.blu").text(toString(blu)+" x USD");
       }
       // "30/6/214 (hace 3 días)"
+      $time.removeClass("error");
       $time.data("time",created_at);
       $time.text(time.format("l")+" ("+time.fromNow()+")");
     };
