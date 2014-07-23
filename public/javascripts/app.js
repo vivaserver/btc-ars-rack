@@ -1,4 +1,4 @@
-//! version : 0.1.2
+//! version : 0.1.3
 //! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
 //! license : MIT
 //! digicoins.enmicelu.com
@@ -148,6 +148,7 @@ var app = function() {
         $id.find("span.blu").text(toString(blu)+" x USD");
       }
       // "30/6/214 (hace 3 días)"
+      $time.data("time",created_at);
       $time.text(time.format("l")+" ("+time.fromNow()+")");
     };
 
@@ -158,7 +159,10 @@ var app = function() {
         $time = $el.find("p#time");
       },
       error: function(truthy) {
+        var time;
         if (truthy) {
+          time = moment($time.data("time"));
+          $time.text(time.format("l")+" ("+time.fromNow()+")");
           $time.addClass("error");
         }
         else {
