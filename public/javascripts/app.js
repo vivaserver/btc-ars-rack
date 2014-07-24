@@ -6,6 +6,13 @@
 var app = function() {
   var $el, cache_timeout = 10;  // in minutes
 
+  var lapseExpired = function(cache) {
+    var then  = moment(cache.created_at), now = moment();  // mind created_at
+    var diff  = moment(now).diff(moment(then));
+    var lapse = moment.duration(diff).asMinutes();
+    return lapse;
+  };
+
   var DigiCoins = function() {
     var updateCache = function(data, use_data_time) {
       console.log(data);
@@ -55,13 +62,6 @@ var app = function() {
           $el.trigger("data:error");
         }
       });
-    };
-
-    var lapseExpired = function(cache) {
-      var then  = moment(cache.created_at), now = moment();
-      var diff  = moment(now).diff(moment(then));
-      var lapse = moment.duration(diff).asMinutes();
-      return lapse;
     };
 
     return {
