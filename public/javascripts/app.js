@@ -81,6 +81,21 @@ var app = function() {
 
   var ConectaBitcoin = function() {
     return {
+      current: function(callBack) {
+        localforage.getItem("current",function(cache) {
+          callBack(cache);
+        });
+      },
+      previous: function(callBack) {
+        localforage.getItem("previous",function(cache) {
+          callBack(cache);
+        });
+      },
+      blu: function(current) {
+        if (current.ars && current.usd) {
+          return current.ars/current.usd;
+        }
+      },
       update: function() {
         localforage.getItem("current",function(cache) {
           if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
@@ -99,13 +114,13 @@ var app = function() {
     var $buy, $sell, $time;
 
     var renderQuotes = function() {
-      localforage.getItem("previous",function(cache) {
+      DigiCoins.previous(function(cache) {
         var current = {buy: {}, sell: {}}, previous = {buy: {}, sell: {}};
         if (cache !== null && cache !== undefined) {
           previous.buy  = cache.buy;
           previous.sell = cache.sell;
         }
-        localforage.getItem("current",function(cache) {
+        DigiCoins.current(function(cache) {
           if (cache !== null && cache !== undefined) {
             current.buy  = cache.buy;
             current.sell = cache.sell;
@@ -142,7 +157,7 @@ var app = function() {
     };
 
     var renderQuote = function($id, created_at, current, previous) {
-      var time = moment(created_at), blu;
+      var time = moment(created_at), blu = DigiCoins.blu(current);
       // USD
       if (current.usd) {
         numeral.language("en");
@@ -159,8 +174,8 @@ var app = function() {
           renderDelta($id.find(".delta-ars"),current.ars,previous.ars);
         }
       }
-      if (current.ars && current.usd) {
-        blu = current.ars/current.usd;
+      // dolar blue
+      if (blu) {
         $id.find("span.blu").text(toString(blu)+" x USD");
       }
       // "30/6/214 (hace 3 días)"
