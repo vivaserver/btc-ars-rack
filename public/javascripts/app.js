@@ -1,10 +1,10 @@
-//! version : 0.1.4
+//! version : 0.1.5
 //! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
 //! license : MIT
 //! digicoins.enmicelu.com
 
 var app = function() {
-  var $el, cache_timeout = 10;  // in minutes
+  var $el, exchange, cache_timeout = 10;  // in minutes
 
   var lapseExpired = function(cache) {
     var then  = moment(cache.created_at), now = moment();  // mind created_at
@@ -65,22 +65,6 @@ var app = function() {
     };
 
     return {
-      update: function() {
-        localforage.getItem("current",function(cache) {
-          if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
-            updateFrom("https://digicoins.tk/ajax/get_prices");
-          }
-        });
-      },
-      updateFromLocal: function() {
-        var use_data_time = true;
-        updateFrom("/javascripts/cache.digicoins.json",use_data_time);
-      }
-    };
-  }();
-
-  var ConectaBitcoin = function() {
-    return {
       current: function(callBack) {
         localforage.getItem("current",function(cache) {
           callBack(cache);
@@ -99,6 +83,22 @@ var app = function() {
       update: function() {
         localforage.getItem("current",function(cache) {
           if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
+            updateFrom("https://digicoins.tk/ajax/get_prices");
+          }
+        });
+      },
+      updateFromLocal: function() {
+        var use_data_time = true;
+        updateFrom("/javascripts/cache.digicoins.json",use_data_time);
+      }
+    };
+  }();
+
+  var ConectaBitcoin = function() {
+    return {
+      update: function() {
+        localforage.getItem("current",function(cache) {
+          if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
             updateFrom("https://conectabitcoin.com/es/market_prices.json");
           }
         });
@@ -114,13 +114,13 @@ var app = function() {
     var $buy, $sell, $time;
 
     var renderQuotes = function() {
-      DigiCoins.previous(function(cache) {
+      exchange.previous(function(cache) {
         var current = {buy: {}, sell: {}}, previous = {buy: {}, sell: {}};
         if (cache !== null && cache !== undefined) {
           previous.buy  = cache.buy;
           previous.sell = cache.sell;
         }
-        DigiCoins.current(function(cache) {
+        exchange.current(function(cache) {
           if (cache !== null && cache !== undefined) {
             current.buy  = cache.buy;
             current.sell = cache.sell;
@@ -131,7 +131,7 @@ var app = function() {
             localStorage.clear();
             // no current cache stored, fallback to static .json
             // and force update on expired bundled data time
-            DigiCoins.updateFromLocal();
+            exchange.updateFromLocal();
           }
         });
       });
@@ -157,7 +157,7 @@ var app = function() {
     };
 
     var renderQuote = function($id, created_at, current, previous) {
-      var time = moment(created_at), blu = DigiCoins.blu(current);
+      var time = moment(created_at), blu = exchange.blu(current);
       // USD
       if (current.usd) {
         numeral.language("en");
@@ -212,6 +212,8 @@ var app = function() {
       localforage.setDriver("localStorageWrapper");
       moment.lang("es");
 
+      exchange = DigiCoins;  // TODO: setup on-demand
+
       $el = $elem;
       $el.on("data:change",function(el) {
         Home.error(false);
@@ -221,14 +223,14 @@ var app = function() {
         Home.error(true);
       });
       setInterval(function() {
-        DigiCoins.update();
+        exchange.update();
       },cache_timeout*60*1000);  // cache_timeout in miliseconds
 
       Home.init($el);
       // render from local cache JSON file
       Home.render();
       // force first update
-      DigiCoins.update();
+      exchange.update();
     }
   };
 }();
