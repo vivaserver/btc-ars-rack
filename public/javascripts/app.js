@@ -74,7 +74,7 @@ var app = function() {
       },
       updateFromLocal: function() {
         var use_data_time = true;
-        updateFrom("/javascripts/cache.json",use_data_time);
+        updateFrom("/javascripts/cache.digicoins.json",use_data_time);
       }
     };
   }();
