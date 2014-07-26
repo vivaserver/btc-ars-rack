@@ -1,14 +1,12 @@
-//! version : 0.1.3
+//! version : 0.1.4
 //! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
 //! license : MIT
 //! digicoins.enmicelu.com
 
 var app = function() {
-  var $el;
+  var $el, cache_timeout = 10;  // in minutes
 
   var DigiCoins = function() {
-    var cache_timeout = 10;  // in minutes
-
     var updateCache = function(data, use_data_time) {
       console.log(data);
       localforage.getItem("current",function(cache) {
@@ -77,6 +75,11 @@ var app = function() {
           callBack(cache);
         });
       },
+      blu: function(current) {
+        if (current.ars && current.usd) {
+          return current.ars/current.usd;
+        }
+      },
       update: function() {
         localforage.getItem("current",function(cache) {
           if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
@@ -138,7 +141,7 @@ var app = function() {
     };
 
     var renderQuote = function($id, created_at, current, previous) {
-      var time = moment(created_at), blu;
+      var time = moment(created_at), blu = DigiCoins.blu(current);
       // USD
       if (current.usd) {
         numeral.language("en");
@@ -156,8 +159,7 @@ var app = function() {
         }
       }
       // dolar blue
-      if (current.ars && current.usd) {
-        blu = current.ars/current.usd;
+      if (blu) {
         $id.find("span.blu").text(toString(blu)+" x USD");
       }
       // "30/6/214 (hace 3 días)"
