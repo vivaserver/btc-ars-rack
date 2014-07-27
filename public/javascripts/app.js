@@ -14,15 +14,17 @@ var app = function() {
   };
 
   var DigiCoins = function() {
+    var name = "digicoins";
+
     var updateCache = function(data, use_data_time) {
       console.log(data);
-      localforage.getItem("current",function(cache) {
+      localforage.getItem(name+"_current",function(cache) {
         var quote;
         if (cache !== null && cache !== undefined) {
-          localforage.setItem("previous",cache);
+          localforage.setItem(name+"_previous",cache);
         }
         quote = {
-          exchange: "digicoins",
+          exchange: name,
           buy: {
             usd:  data.btcusdask,
             ars:  data.btcarsask,
@@ -35,7 +37,7 @@ var app = function() {
           },
           created_at: timeStamp(data.pricestime,use_data_time)
         };
-        localforage.setItem("current",quote,function() {
+        localforage.setItem(name+"_current",quote,function() {
           $el.trigger("data:change");
         });
       });
@@ -66,12 +68,12 @@ var app = function() {
 
     return {
       current: function(callBack) {
-        localforage.getItem("current",function(cache) {
+        localforage.getItem(name+"_current",function(cache) {
           callBack(cache);
         });
       },
       previous: function(callBack) {
-        localforage.getItem("previous",function(cache) {
+        localforage.getItem(name+"_previous",function(cache) {
           callBack(cache);
         });
       },
@@ -81,7 +83,7 @@ var app = function() {
         }
       },
       update: function() {
-        localforage.getItem("current",function(cache) {
+        localforage.getItem(name+"_current",function(cache) {
           if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
             updateFrom("https://digicoins.tk/ajax/get_prices");
           }
