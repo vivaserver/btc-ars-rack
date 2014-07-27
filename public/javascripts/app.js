@@ -102,25 +102,19 @@ var app = function() {
         return current.ars/current.usd;
       }
     };
-
     return exchanger;
   };
 
   var ConectaBitcoin = function() {
-    return {
-      update: function() {
-        localforage.getItem("current",function(cache) {
-          if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
-            updateFrom("https://conectabitcoin.com/es/market_prices.json");
-          }
-        });
-      },
-      updateFromLocal: function() {
-        var use_data_time = true;
-        updateFrom("/javascripts/cache.conectabitcoin.json",use_data_time);
-      }
+    var exchanger = {}, conf = {
+      cache: "/javascripts/cache.conectabitcoin.json",
+      name: "conectabitcoin",
+      URI: "https://conectabitcoin.com/es/market_prices.json"
     };
-  }();
+
+    exchanger = exchangeable(conf);
+    return exchanger;
+  };
 
   var Home = function() {
     var $buy, $sell, $time;
