@@ -13,7 +13,7 @@ var app = function() {
     return lapse;
   };
 
-  var exchanger = function(exchange) {
+  var exchangeable = function(exchange) {
     var updateCache = function(data, use_data_time) {
       console.log(data);
       localforage.getItem(exchange.name+"_current",function(cache) {
@@ -75,11 +75,6 @@ var app = function() {
           callBack(cache);
         });
       },
-      blu: function(current) {
-        if (current.ars && current.usd) {
-          return current.ars/current.usd;
-        }
-      },
       update: function() {
         localforage.getItem(exchange.name+"_current",function(cache) {
           if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
@@ -95,14 +90,21 @@ var app = function() {
   };
 
   var DigiCoins = function() {
-    var conf = {
+    var exchanger = {}, conf = {
       cache: "/javascripts/cache.digicoins.json",
       name: "digicoins",
       URI: "https://digicoins.tk/ajax/get_prices"
     };
-    return exchanger(conf);
-  };
 
+    exchanger = exchangeable(conf);
+    exchanger.blue = function(current) {
+      if (current.ars && current.usd) {
+        return current.ars/current.usd;
+      }
+    };
+
+    return exchanger;
+  };
 
   var ConectaBitcoin = function() {
     return {
@@ -167,7 +169,7 @@ var app = function() {
     };
 
     var renderQuote = function($id, created_at, current, previous) {
-      var time = moment(created_at), blu = exchange.blu(current);
+      var time = moment(created_at), blu = exchange.blue(current);
       // USD
       if (current.usd) {
         numeral.language("en");
