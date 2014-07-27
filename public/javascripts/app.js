@@ -13,18 +13,16 @@ var app = function() {
     return lapse;
   };
 
-  var DigiCoins = function() {
-    var name = "digicoins";
-
+  var exchanger = function(exchange) {
     var updateCache = function(data, use_data_time) {
       console.log(data);
-      localforage.getItem(name+"_current",function(cache) {
+      localforage.getItem(exchange.name+"_current",function(cache) {
         var quote;
         if (cache !== null && cache !== undefined) {
-          localforage.setItem(name+"_previous",cache);
+          localforage.setItem(exchange.name+"_previous",cache);
         }
         quote = {
-          exchange: name,
+          exchange: exchange.name,
           buy: {
             usd:  data.btcusdask,
             ars:  data.btcarsask,
@@ -37,7 +35,7 @@ var app = function() {
           },
           created_at: timeStamp(data.pricestime,use_data_time)
         };
-        localforage.setItem(name+"_current",quote,function() {
+        localforage.setItem(exchange.name+"_current",quote,function() {
           $el.trigger("data:change");
         });
       });
@@ -68,12 +66,12 @@ var app = function() {
 
     return {
       current: function(callBack) {
-        localforage.getItem(name+"_current",function(cache) {
+        localforage.getItem(exchange.name+"_current",function(cache) {
           callBack(cache);
         });
       },
       previous: function(callBack) {
-        localforage.getItem(name+"_previous",function(cache) {
+        localforage.getItem(exchange.name+"_previous",function(cache) {
           callBack(cache);
         });
       },
@@ -83,18 +81,28 @@ var app = function() {
         }
       },
       update: function() {
-        localforage.getItem(name+"_current",function(cache) {
+        localforage.getItem(exchange.name+"_current",function(cache) {
           if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
-            updateFrom("https://digicoins.tk/ajax/get_prices");
+            updateFrom(exchange.URI);
           }
         });
       },
       updateFromLocal: function() {
         var use_data_time = true;
-        updateFrom("/javascripts/cache.digicoins.json",use_data_time);
+        updateFrom(exchange.cache,use_data_time);
       }
     };
-  }();
+  };
+
+  var DigiCoins = function() {
+    var conf = {
+      cache: "/javascripts/cache.digicoins.json",
+      name: "digicoins",
+      URI: "https://digicoins.tk/ajax/get_prices"
+    };
+    return exchanger(conf);
+  };
+
 
   var ConectaBitcoin = function() {
     return {
@@ -214,7 +222,7 @@ var app = function() {
       localforage.setDriver("localStorageWrapper");
       moment.lang("es");
 
-      exchange = DigiCoins;  // TODO: setup on-demand
+      exchange = DigiCoins();  // TODO: setup on-demand
 
       $el = $elem;
       $el.on("data:change",function(el) {
