@@ -17,34 +17,13 @@ var app = function() {
     var updateCache = function(data, use_data_time) {
       console.log(data);
       localforage.getItem(exchange.name+"_current",function(cache) {
-        var quote;
         if (cache !== null && cache !== undefined) {
           localforage.setItem(exchange.name+"_previous",cache);
         }
-        quote = {
-          exchange: exchange.name,
-          buy: {
-            usd:  data.btcusdask,
-            ars:  data.btcarsask,
-            time: data.quotestime
-          },
-          sell: {
-            usd:  data.btcusdbid,
-            ars:  data.btcarsbid,
-            time: data.quotestime
-          },
-          created_at: timeStamp(data.pricestime,use_data_time)
-        };
-        localforage.setItem(exchange.name+"_current",quote,function() {
+        localforage.setItem(exchange.name+"_current",exchange.quote(data,use_data_time),function() {
           $el.trigger("data:change");
         });
       });
-    };
-
-    var timeStamp = function(time, use_data_time) {  // always like "2014-07-09T17:13:34.553Z"
-      return (use_data_time === true) ? 
-        time.replace(" ","T").substr(0,23)+"Z" :
-        new Date().toJSON();
     };
 
     var updateFrom = function(uri, use_data_time) {
@@ -91,6 +70,22 @@ var app = function() {
 
   var DigiCoins = function() {
     var exchanger = {}, conf = {
+      quote: function(data, use_data_time) {
+        return {
+          exchange: "digicoins",
+          buy: {
+            usd:  data.btcusdask,
+            ars:  data.btcarsask,
+            time: data.quotestime
+          },
+          sell: {
+            usd:  data.btcusdbid,
+            ars:  data.btcarsbid,
+            time: data.quotestime
+          },
+          created_at: (use_data_time === true) ? data.pricestime.replace(" ","T").substr(0,23)+"Z" : new Date().toJSON()  // always like "2014-07-09T17:13:34.553Z"
+        };
+      },
       cache: "/javascripts/cache.digicoins.json",
       name: "digicoins",
       URI: "https://digicoins.tk/ajax/get_prices"
