@@ -6,20 +6,13 @@
 var app = function() {
   var $el, exchange, cache_timeout = 10;  // in minutes
 
-  var lapseExpired = function(cache) {
-    var then  = moment(cache.created_at), now = moment();  // mind created_at
-    var diff  = moment(now).diff(moment(then));
-    var lapse = moment.duration(diff).asMinutes();
-    return lapse;
-  };
-
   var exchangeable = function(exchange) {
     var updateCache = function(data, use_data_time) {
-      console.log(data);
       localforage.getItem(exchange.name+"_current",function(cache) {
         if (cache !== null && cache !== undefined) {
           localforage.setItem(exchange.name+"_previous",cache);
         }
+        console.log(data);
         localforage.setItem(exchange.name+"_current",exchange.quote(data,use_data_time),function() {
           $el.trigger("data:change");
         });
@@ -32,15 +25,20 @@ var app = function() {
         type: "GET",
         url: uri, 
         success: function(data) {
-          if (data.result == "OK") {
-            updateCache(data,use_data_time);
-          }
+          updateCache(data,use_data_time);
         },
         error: function(xhr, type) {
           console.log(type);  // "abort"
           $el.trigger("data:error");
         }
       });
+    };
+
+    var lapseExpired = function(cache) {
+      var then  = moment(cache.created_at), now = moment();  // mind created_at
+      var diff  = moment(now).diff(moment(then));
+      var lapse = moment.duration(diff).asMinutes();
+      return lapse;
     };
 
     return {
@@ -69,7 +67,10 @@ var app = function() {
   };
 
   var DigiCoins = function() {
-    var exchanger = {}, conf = {
+    var exchanger = {};
+
+    // needed to cache/parse exchanger quotes
+    var conf = {
       quote: function(data, use_data_time) {
         return {
           exchange: "digicoins",
@@ -90,8 +91,9 @@ var app = function() {
       name: "digicoins",
       URI: "https://digicoins.tk/ajax/get_prices"
     };
-
     exchanger = exchangeable(conf);
+
+    // needed to render Home view
     exchanger.blue = function(current) {
       if (current.ars && current.usd) {
         return current.ars/current.usd;
@@ -101,13 +103,44 @@ var app = function() {
   };
 
   var ConectaBitcoin = function() {
-    var exchanger = {}, conf = {
+    var exchanger = {};
+
+    // needed to cache/parse exchanger quotes
+    var conf = {
+      quote: function(data, use_data_time) {
+        var data_time = new Date().toJSON();
+        // if (use_data_time) {  // force expired date
+        //   data_time = data_time.setDate(data_time.getDate()-1);
+        // }
+        // data_time = data_time.toJSON();
+
+        return {
+          exchange: "conectabitcoin",
+          buy: {
+            usd:  data.btc_usd.buy,
+            ars:  data.btc_ars.buy,
+            time: data_time
+          },
+          sell: {
+            usd:  data.btc_usd.sell,
+            ars:  data.btc_ars.sell,
+            time: data_time
+          },
+          created_at: data_time  // "2014-07-09T17:13:34.553Z"
+        };
+      },
       cache: "/javascripts/cache.conectabitcoin.json",
       name: "conectabitcoin",
       URI: "https://conectabitcoin.com/es/market_prices.json"
     };
-
     exchanger = exchangeable(conf);
+
+    // needed to render Home view
+    exchanger.blue = function(current) {  // usd_ars.sell/usd_ars.buy
+      if (current.ars && current.usd) {
+        return current.ars/current.usd;
+      }
+    };
     return exchanger;
   };
 
@@ -213,7 +246,7 @@ var app = function() {
       localforage.setDriver("localStorageWrapper");
       moment.lang("es");
 
-      exchange = DigiCoins();  // TODO: setup on-demand
+      exchange = ConectaBitcoin();  // TODO: setup on-demand
 
       $el = $elem;
       $el.on("data:change",function(el) {
