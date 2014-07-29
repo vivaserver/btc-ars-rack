@@ -108,11 +108,11 @@ var app = function() {
     // needed to cache/parse exchanger quotes
     var conf = {
       quote: function(data, use_data_time) {
-        var data_time = new Date().toJSON();
-        // if (use_data_time) {  // force expired date
-        //   data_time = data_time.setDate(data_time.getDate()-1);
-        // }
-        // data_time = data_time.toJSON();
+        var data_time = new Date();
+        if (use_data_time) {  // force expired date
+          data_time = new Date(data_time.getFullYear(),data_time.getMonth(),data_time.getDate()-1);
+        }
+        data_time = data_time.toJSON();
 
         return {
           exchange: "conectabitcoin",
