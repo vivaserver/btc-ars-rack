@@ -11,7 +11,7 @@ var app = function() {
       console.log(data);
       localforage.getItem(exchange.name,function(cache) {
         var current, previous = {"previous":null};
-        if (cache !== null && cache !== undefined) {
+        if (!!cache) {
           previous = {"previous":cache.current};
         }
         current = $.extend({"current":exchange.quote(data,use_data_time)},previous);
@@ -57,7 +57,7 @@ var app = function() {
       },
       update: function() {
         localforage.getItem(exchange.name,function(cache) {
-          if ((cache === null || cache === undefined) || lapseExpired(cache.current) > cache_timeout-1) {
+          if (!cache || lapseExpired(cache.current) > cache_timeout-1) {
             updateFrom(exchange.URI);
           }
         });
@@ -151,12 +151,12 @@ var app = function() {
     var renderQuotes = function() {
       exchange.previous(function(cache) {
         var current = {buy: {}, sell: {}}, previous = {buy: {}, sell: {}};
-        if (cache !== null && cache !== undefined) {
+        if (!!cache) {
           previous.buy  = cache.buy;
           previous.sell = cache.sell;
         }
         exchange.current(function(cache) {
-          if (cache !== null && cache !== undefined) {
+          if (!!cache) {
             current.buy  = cache.buy;
             current.sell = cache.sell;
             renderQuote($buy,  cache.created_at, current.buy,  previous.buy);
