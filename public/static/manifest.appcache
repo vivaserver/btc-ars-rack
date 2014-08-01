@@ -13,7 +13,8 @@ CACHE:
 /javascripts/lib/numeral.min.js
 /javascripts/lib/numeral.es.js
 /javascripts/lib/zepto.min.js
-/javascripts/cache.json
+/javascripts/cache.conectabitcoin.json
+/javascripts/cache.digicoins.json
 /javascripts/app.js
 /stylesheets/ratchet.min.css
 /stylesheets/styles.css
