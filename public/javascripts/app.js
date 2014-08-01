@@ -15,7 +15,6 @@ var app = function() {
           previous = {"previous":cache.current};
         }
         current = $.extend({"current":exchange.quote(data,use_data_time)},previous);
-        console.log(current);
         localforage.setItem(exchange.name,current,function() {
           $el.trigger("data:change");
         });
