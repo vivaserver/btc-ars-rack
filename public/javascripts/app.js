@@ -1,4 +1,4 @@
-//! version : 0.1.5
+//! version : 0.1.6
 //! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
 //! license : MIT
 //! digicoins.enmicelu.com
@@ -8,12 +8,15 @@ var app = function() {
 
   var exchangeable = function(exchange) {
     var updateCache = function(data, use_data_time) {
-      localforage.getItem(exchange.name+"_current",function(cache) {
+      console.log(data);
+      localforage.getItem(exchange.name,function(cache) {
+        var current, previous = {"previous":null};
         if (cache !== null && cache !== undefined) {
-          localforage.setItem(exchange.name+"_previous",cache);
+          previous = {"previous":cache.current};
         }
-        console.log(data);
-        localforage.setItem(exchange.name+"_current",exchange.quote(data,use_data_time),function() {
+        current = $.extend({"current":exchange.quote(data,use_data_time)},previous);
+        console.log(current);
+        localforage.setItem(exchange.name,current,function() {
           $el.trigger("data:change");
         });
       });
@@ -43,18 +46,18 @@ var app = function() {
 
     return {
       current: function(callBack) {
-        localforage.getItem(exchange.name+"_current",function(cache) {
-          callBack(cache);
+        localforage.getItem(exchange.name,function(cache) {
+          callBack(cache && cache.current ? cache.current : null);
         });
       },
       previous: function(callBack) {
-        localforage.getItem(exchange.name+"_previous",function(cache) {
-          callBack(cache);
+        localforage.getItem(exchange.name,function(cache) {
+          callBack(cache && cache.previous ? cache.previous : null);
         });
       },
       update: function() {
-        localforage.getItem(exchange.name+"_current",function(cache) {
-          if ((cache === null || cache === undefined) || lapseExpired(cache) > cache_timeout-1) {
+        localforage.getItem(exchange.name,function(cache) {
+          if ((cache === null || cache === undefined) || lapseExpired(cache.current) > cache_timeout-1) {
             updateFrom(exchange.URI);
           }
         });
@@ -73,7 +76,6 @@ var app = function() {
     var conf = {
       quote: function(data, use_data_time) {
         return {
-          exchange: "digicoins",
           buy: {
             usd:  data.btcusdask,
             ars:  data.btcarsask,
@@ -115,7 +117,6 @@ var app = function() {
         data_time = data_time.toJSON();
 
         return {
-          exchange: "conectabitcoin",
           buy: {
             usd:  data.btc_usd.buy,
             ars:  data.btc_ars.buy,
@@ -246,7 +247,7 @@ var app = function() {
       localforage.setDriver("localStorageWrapper");
       moment.lang("es");
 
-      exchange = ConectaBitcoin();  // TODO: setup on-demand
+      exchange = DigiCoins();  // TODO: setup on-demand
 
       $el = $elem;
       $el.on("data:change",function(el) {
