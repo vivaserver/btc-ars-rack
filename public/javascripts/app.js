@@ -154,6 +154,8 @@ var app = function() {
             current.sell = cache.sell;
             renderQuote($buy,  cache.created_at, current.buy,  previous.buy);
             renderQuote($sell, cache.created_at, current.sell, previous.sell);
+            renderSpread($buy, current);
+            renderSpread($sell,current);
           }
           else {
             localStorage.clear();
@@ -167,6 +169,13 @@ var app = function() {
 
     var toString = function(value) {
       return numeral(value).format("0,0.00");  // format according to numeral.language()
+    };
+
+    var renderSpread = function($quote, quote) {
+      numeral.language("en");
+      $quote.find(".spread-usd").text(toString(quote.buy.usd-quote.sell.usd)+" ↔");
+      numeral.language("es");
+      $quote.find(".spread-ars").text(toString(quote.buy.ars-quote.sell.ars)+" ↔");
     };
 
     var renderDelta = function($id, current, previous) {
