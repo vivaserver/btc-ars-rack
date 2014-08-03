@@ -145,13 +145,11 @@ var app = function() {
       exchange.previous(function(cache) {
         var current = {buy: {}, sell: {}}, previous = {buy: {}, sell: {}};
         if (!!cache) {
-          previous.buy  = cache.buy;
-          previous.sell = cache.sell;
+          previous = cache;
         }
         exchange.current(function(cache) {
           if (!!cache) {
-            current.buy  = cache.buy;
-            current.sell = cache.sell;
+            current = cache;
             renderQuote($buy,  cache.created_at, current.buy,  previous.buy);
             renderQuote($sell, cache.created_at, current.sell, previous.sell);
             renderSpread($buy, current);
