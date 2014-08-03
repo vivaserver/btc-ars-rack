@@ -1,4 +1,4 @@
-//! version : 0.1.6
+//! version : 0.1.7
 //! authors : Cristian R. Arroyo <cristian.arroyo@vivaserver.com>
 //! license : MIT
 //! digicoins.enmicelu.com
@@ -54,6 +54,11 @@ var app = function() {
           callBack(cache && cache.previous ? cache.previous : null);
         });
       },
+      blue: function(quote) {
+        if (!!quote && quote.ars && quote.usd) {
+          return quote.ars/quote.usd;
+        }
+      },
       update: function() {
         localforage.getItem(exchange.name,function(cache) {
           if (!cache || lapseExpired(cache.current) > cache_timeout-1) {
@@ -94,12 +99,6 @@ var app = function() {
     };
     exchanger = exchangeable(conf);
 
-    // needed to render Home view
-    exchanger.blue = function(current) {
-      if (current.ars && current.usd) {
-        return current.ars/current.usd;
-      }
-    };
     return exchanger;
   };
 
@@ -126,6 +125,7 @@ var app = function() {
             ars:  data.btc_ars.sell,
             time: data_time
           },
+          // blu: usd_ars.sell/usd_ars.buy
           created_at: data_time  // "2014-07-09T17:13:34.553Z"
         };
       },
@@ -135,12 +135,6 @@ var app = function() {
     };
     exchanger = exchangeable(conf);
 
-    // needed to render Home view
-    exchanger.blue = function(current) {  // usd_ars.sell/usd_ars.buy
-      if (current.ars && current.usd) {
-        return current.ars/current.usd;
-      }
-    };
     return exchanger;
   };
 
@@ -254,18 +248,18 @@ var app = function() {
       localforage.setDriver("localStorageWrapper");
       moment.lang("es");
 
-      exchange = DigiCoins();  // TODO: setup on-demand
-
       $el = $elem;
-      setInterval(function() {
-        exchange.update();
-      },cache_timeout*60*1000);  // cache_timeout in miliseconds
+      exchange = DigiCoins();  // TODO: setup on-demand
 
       Home.init($el);
       // render from local cache JSON file
       Home.render();
       // force first update
       exchange.update();
+      // schedule all next
+      setInterval(function() {
+        exchange.update();
+      },cache_timeout*60*1000);  // cache_timeout in miliseconds
     }
   };
 }();
