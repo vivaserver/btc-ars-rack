@@ -125,7 +125,7 @@ var app = function() {
             ars:  data.btc_ars.sell,
             time: data_time
           },
-          // blu: usd_ars.sell/usd_ars.buy
+          // blue: usd_ars.sell/usd_ars.buy
           created_at: data_time  // "2014-07-09T17:13:34.553Z"
         };
       },
@@ -185,7 +185,7 @@ var app = function() {
     };
 
     var renderQuote = function($id, created_at, current, previous) {
-      var time = moment(created_at), blu = exchange.blue(current);
+      var time = moment(created_at), blue = exchange.blue(current);
       // USD
       if (current.usd) {
         numeral.language("en");
@@ -203,8 +203,8 @@ var app = function() {
         }
       }
       // dolar blue
-      if (blu) {
-        $id.find("span.blu").text(toString(blu)+" x USD");
+      if (blue) {
+        $id.find("span.blue").text(toString(blue)+" x USD");
       }
       // "30/6/214 (hace 3 días)"
       $time.removeClass("error");
