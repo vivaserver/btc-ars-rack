@@ -220,9 +220,17 @@ var app = function() {
 
     return {
       init: function($el) {
+        var that = this;
         $buy  = $el.find("span#buy");
         $sell = $el.find("span#sell");
         $time = $el.find("p#time");
+        $el.on("data:change",function(el) {
+          that.error(false);
+          that.render();
+        });
+        $el.on("data:error",function(el) {
+          that.error(true);
+        });
       },
       error: function(truthy) {
         var time;
@@ -249,13 +257,6 @@ var app = function() {
       exchange = DigiCoins();  // TODO: setup on-demand
 
       $el = $elem;
-      $el.on("data:change",function(el) {
-        Home.error(false);
-        Home.render();
-      });
-      $el.on("data:error",function(el) {
-        Home.error(true);
-      });
       setInterval(function() {
         exchange.update();
       },cache_timeout*60*1000);  // cache_timeout in miliseconds
