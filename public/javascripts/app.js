@@ -10,14 +10,20 @@ var app = function() {
     var updateCache = function(data, use_data_time) {
       console.log(data);
       localforage.getItem(exchange.name,function(cache) {
-        var current, previous = {"previous":null};
+        var quote, current, previous = {"previous":null};
         if (!!cache) {
           previous = {"previous":cache.current};
         }
-        current = $.extend({"current":exchange.quote(data,use_data_time)},previous);
-        localforage.setItem(exchange.name,current,function() {
-          $el.trigger("data:change");
-        });
+        quote = exchange.quote(data,use_data_time);
+        if (!!quote) {
+          current = $.extend({"current":quote},previous);
+          localforage.setItem(exchange.name,current,function() {
+            $el.trigger("data:change");
+          });
+        }
+        else {
+          $el.trigger("data:error");
+        }
       });
     };
 
@@ -79,19 +85,24 @@ var app = function() {
     // needed to cache/parse exchanger quotes
     var conf = {
       quote: function(data, use_data_time) {
-        return {
-          buy: {
-            usd:  data.btcusdask,
-            ars:  data.btcarsask,
-            time: data.quotestime
-          },
-          sell: {
-            usd:  data.btcusdbid,
-            ars:  data.btcarsbid,
-            time: data.quotestime
-          },
-          created_at: (use_data_time === true) ? data.pricestime.replace(" ","T").substr(0,23)+"Z" : new Date().toJSON()  // always like "2014-07-09T17:13:34.553Z"
-        };
+        if ((data || {}).result == "OK") {  // ref. http://stackoverflow.com/a/19285523
+          return {
+            buy: {
+              usd:  data.btcusdask,
+              ars:  data.btcarsask,
+              time: data.quotestime
+            },
+            sell: {
+              usd:  data.btcusdbid,
+              ars:  data.btcarsbid,
+              time: data.quotestime
+            },
+            created_at: (use_data_time === true) ? data.pricestime.replace(" ","T").substr(0,23)+"Z" : new Date().toJSON()  // always like "2014-07-09T17:13:34.553Z"
+          };
+        }
+        else {
+          return false;
+        }
       },
       cache: "/javascripts/cache.digicoins.json",
       name: "digicoins",
