@@ -10,6 +10,9 @@ Built with the following components:
 
 ## Bootstrap
 
+    $ git submodule init
+    $ git submodule update
+
     $ bundle install --path=vendor
     ...
     $ bundle exec rackup
