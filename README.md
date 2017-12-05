@@ -1,4 +1,4 @@
-# Bitcoin en Argentina
+# Bitcoin en Argentina FirefoxOS app. Rack backend
 
 Built with the following components:
 
